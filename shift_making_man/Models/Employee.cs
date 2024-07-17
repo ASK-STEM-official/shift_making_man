@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Jakunen_Demo.Models
+namespace shift_making_man.Models
 {
     public class Employee
     {
@@ -17,12 +17,11 @@ namespace Jakunen_Demo.Models
 
         public bool IsAvailable(DateTime date, TimeSpan startTime, TimeSpan endTime)
         {
-            // シフトの重複を避けるためのロジック
             if (Shifts.ContainsKey(date))
             {
                 foreach (var shift in Shifts[date])
                 {
-                    if ((shift.StartTime.TimeOfDay < endTime && shift.EndTime.TimeOfDay > startTime))
+                    if ((shift.StartTime < endTime && shift.EndTime > startTime))
                     {
                         return false;
                     }
@@ -34,7 +33,6 @@ namespace Jakunen_Demo.Models
         public double GetDailyWorkHours(DateTime date)
         {
             if (!Shifts.ContainsKey(date)) return 0.0;
-
             double totalHours = 0.0;
             foreach (var shift in Shifts[date])
             {
@@ -48,23 +46,9 @@ namespace Jakunen_Demo.Models
             double totalHours = 0.0;
             for (int i = 0; i < 7; i++)
             {
-                DateTime date = startDate.AddDays(i);
-                totalHours += GetDailyWorkHours(date);
+                totalHours += GetDailyWorkHours(startDate.AddDays(i));
             }
             return totalHours;
-        }
-
-        public bool HasWeeklyRestDay(DateTime startDate)
-        {
-            for (int i = 0; i < 7; i++)
-            {
-                DateTime date = startDate.AddDays(i);
-                if (!Shifts.ContainsKey(date) || Shifts[date].Count == 0)
-                {
-                    return true;
-                }
-            }
-            return false;
         }
     }
 }

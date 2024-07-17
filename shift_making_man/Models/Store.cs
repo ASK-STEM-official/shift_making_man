@@ -11,6 +11,5 @@ namespace shift_making_man.Models
         public TimeSpan BusyTimeEnd { get; set; }
         public int NormalStaffCount { get; set; }
         public int BusyStaffCount { get; set; }
-
     }
 }

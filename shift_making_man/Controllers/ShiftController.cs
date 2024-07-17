@@ -1,37 +1,29 @@
 ﻿using shift_making_man.Models;
-using shift_making_man.Services;
+using shift_making_man.Data;
+using System;
 using System.Collections.Generic;
 
 namespace shift_making_man.Controllers
 {
     public class ShiftController
     {
-        private readonly ShiftSchedulerService _schedulerService;
+        private readonly IDataAccess _dataAccess;
 
-        public ShiftController(ShiftSchedulerService schedulerService)
+        public ShiftController(IDataAccess dataAccess)
         {
-            _schedulerService = schedulerService;
+            _dataAccess = dataAccess;
         }
 
-        public Dictionary<int, List<Shift>> GenerateSchedule()
+        public List<Shift> GetShifts()
         {
-            // 必要なデータをデータベースから取得
-            var employees = _schedulerService.GetAllEmployees();
-            var shifts = _schedulerService.GetAllShifts();
-
-            // スケジュールを生成
-            return _schedulerService.GenerateSchedule(employees, shifts);
+            return _dataAccess.GetShifts();
         }
 
-        // 他のコントローラメソッドを追加
-    }
-}
+        public void UpdateShift(Shift shift)
+        {
+            _dataAccess.UpdateShift(shift);
+        }
 
-// Controllers/ShiftSchedulerController.cs
-namespace shift_making_man.Controllers
-{
-    public class ShiftSchedulerController
-    {
-        // メソッドやプロパティを定義
+        // Add other methods to handle shift logic
     }
 }

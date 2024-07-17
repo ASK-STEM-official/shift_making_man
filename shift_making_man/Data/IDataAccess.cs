@@ -1,17 +1,13 @@
-﻿using System.Collections.Generic;
-using shift_making_man.Models;
+﻿using shift_making_man.Models;
+using System.Collections.Generic;
 
 namespace shift_making_man.Data
 {
     public interface IDataAccess
     {
-        List<Employee> GetAllEmployees();
-        List<Shift> GetAllShifts();
-        List<ShiftRequest> GetAllShiftRequests();
-        List<Attendance> GetAllAttendances();
-        List<Admin> GetAllAdmins();
-        void SaveShiftRequest(ShiftRequest request);
-        void SaveAttendance(Attendance attendance);
-        void UpdateShiftStatus(int shiftId, int status);
+        List<Shift> GetShifts();
+        List<Staff> GetStaff();
+        List<Store> GetStores();
+        void UpdateShift(Shift shift);
     }
 }

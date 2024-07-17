@@ -1,67 +1,34 @@
-﻿using MySql.Data.MySqlClient;
-using shift_making_man.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using shift_making_man.Data;
+using MySql.Data.MySqlClient;
+using shift_making_man.Models;
 
 namespace shift_making_man.Data
 {
     public class MySqlDataAccess : IDataAccess
     {
-        private readonly string _connectionString;
+        private readonly string connectionString = "server=localhost;database=19demo;user=root;password=;";
 
-        public MySqlDataAccess(string connectionString)
+        public List<Shift> GetShifts()
         {
-            _connectionString = connectionString;
-        }
-
-        public List<Employee> GetAllEmployees()
-        {
-            var employees = new List<Employee>();
-            using (var connection = new MySqlConnection(_connectionString))
+            List<Shift> shifts = new List<Shift>();
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
-                connection.Open();
-                var command = new MySqlCommand("SELECT * FROM staff", connection);
-                using (var reader = command.ExecuteReader())
+                conn.Open();
+                string sql = "SELECT * FROM shifts";
+                MySqlCommand cmd = new MySqlCommand(sql, conn);
+                using (MySqlDataReader rdr = cmd.ExecuteReader())
                 {
-                    while (reader.Read())
-                    {
-                        employees.Add(new Employee
-                        {
-                            Id = reader.GetInt32("StaffID"),
-                            Username = reader.GetString("Username"),
-                            PasswordHash = reader.GetString("PasswordHash"),
-                            Name = reader.GetString("FullName"),
-                            Email = reader.GetString("Email"),
-                            PhoneNumber = reader.IsDBNull(reader.GetOrdinal("PhoneNumber")) ? null : reader.GetString("PhoneNumber"),
-                            EmploymentType = reader.GetString("EmploymentType"),
-                            StoreId = reader.IsDBNull(reader.GetOrdinal("StoreID")) ? (int?)null : reader.GetInt32("StoreID")
-                        });
-                    }
-                }
-            }
-            return employees;
-        }
-
-        public List<Shift> GetAllShifts()
-        {
-            var shifts = new List<Shift>();
-            using (var connection = new MySqlConnection(_connectionString))
-            {
-                connection.Open();
-                var command = new MySqlCommand("SELECT * FROM shifts", connection);
-                using (var reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
+                    while (rdr.Read())
                     {
                         shifts.Add(new Shift
                         {
-                            Id = reader.GetInt32("ShiftID"),
-                            EmployeeId = reader.GetInt32("StaffID"),
-                            Date = reader.GetDateTime("ShiftDate"),
-                            StartTime = reader.GetDateTime("ShiftDate").Add(reader.GetTimeSpan("StartTime")),
-                            EndTime = reader.GetDateTime("ShiftDate").Add(reader.GetTimeSpan("EndTime")),
-                            Status = reader.GetInt32("Status")
+                            ShiftID = rdr.GetInt32("ShiftID"),
+                            StaffID = rdr.IsDBNull("StaffID") ? (int?)null : rdr.GetInt32("StaffID"),
+                            ShiftDate = rdr.GetDateTime("ShiftDate"),
+                            StartTime = rdr.GetTimeSpan("StartTime"),
+                            EndTime = rdr.GetTimeSpan("EndTime"),
+                            Status = rdr.GetInt32("Status")
                         });
                     }
                 }
@@ -69,131 +36,77 @@ namespace shift_making_man.Data
             return shifts;
         }
 
-        public List<ShiftRequest> GetAllShiftRequests()
+        public List<Staff> GetStaff()
         {
-            var requests = new List<ShiftRequest>();
-            using (var connection = new MySqlConnection(_connectionString))
+            List<Staff> staff = new List<Staff>();
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
-                connection.Open();
-                var command = new MySqlCommand("SELECT * FROM shiftrequests", connection);
-                using (var reader = command.ExecuteReader())
+                conn.Open();
+                string sql = "SELECT * FROM staff";
+                MySqlCommand cmd = new MySqlCommand(sql, conn);
+                using (MySqlDataReader rdr = cmd.ExecuteReader())
                 {
-                    while (reader.Read())
+                    while (rdr.Read())
                     {
-                        requests.Add(new ShiftRequest
+                        staff.Add(new Staff
                         {
-                            RequestID = reader.GetInt32("RequestID"),
-                            StaffID = reader.GetInt32("StaffID"),
-                            OriginalShiftID = reader.IsDBNull(reader.GetOrdinal("OriginalShiftID")) ? (int?)null : reader.GetInt32("OriginalShiftID"),
-                            RequestedShiftID = reader.IsDBNull(reader.GetOrdinal("RequestedShiftID")) ? (int?)null : reader.GetInt32("RequestedShiftID"),
-                            RequestDate = reader.GetDateTime("RequestDate"),
-                            Status = reader.GetInt32("Status")
+                            StaffID = rdr.GetInt32("StaffID"),
+                            Username = rdr.GetString("Username"),
+                            PasswordHash = rdr.GetString("PasswordHash"),
+                            FullName = rdr.GetString("FullName"),
+                            Email = rdr.GetString("Email"),
+                            PhoneNumber = rdr.GetString("PhoneNumber"),
+                            EmploymentType = rdr.GetString("EmploymentType"),
+                            StoreID = rdr.IsDBNull("StoreID") ? (int?)null : rdr.GetInt32("StoreID")
                         });
                     }
                 }
             }
-            return requests;
+            return staff;
         }
 
-        public List<Attendance> GetAllAttendances()
+        public List<Store> GetStores()
         {
-            var attendances = new List<Attendance>();
-            using (var connection = new MySqlConnection(_connectionString))
+            List<Store> stores = new List<Store>();
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
-                connection.Open();
-                var command = new MySqlCommand("SELECT * FROM attendance", connection);
-                using (var reader = command.ExecuteReader())
+                conn.Open();
+                string sql = "SELECT * FROM store";
+                MySqlCommand cmd = new MySqlCommand(sql, conn);
+                using (MySqlDataReader rdr = cmd.ExecuteReader())
                 {
-                    while (reader.Read())
+                    while (rdr.Read())
                     {
-                        attendances.Add(new Attendance
+                        stores.Add(new Store
                         {
-                            AttendanceID = reader.GetInt32("AttendanceID"),
-                            StaffID = reader.GetInt32("StaffID"),
-                            ShiftID = reader.IsDBNull(reader.GetOrdinal("ShiftID")) ? (int?)null : reader.GetInt32("ShiftID"),
-                            CheckInTime = reader.GetDateTime("CheckInTime"),
-                            CheckOutTime = reader.IsDBNull(reader.GetOrdinal("CheckOutTime")) ? (DateTime?)null : reader.GetDateTime("CheckOutTime")
+                            StoreID = rdr.GetInt32("StoreID"),
+                            OpenTime = rdr.GetTimeSpan("OpenTime"),
+                            CloseTime = rdr.GetTimeSpan("CloseTime"),
+                            BusyTimeStart = rdr.GetTimeSpan("BusyTimeStart"),
+                            BusyTimeEnd = rdr.GetTimeSpan("BusyTimeEnd"),
+                            NormalStaffCount = rdr.GetInt32("NormalStaffCount"),
+                            BusyStaffCount = rdr.GetInt32("BusyStaffCount")
                         });
                     }
                 }
             }
-            return attendances;
+            return stores;
         }
 
-        public List<Admin> GetAllAdmins()
+        public void UpdateShift(Shift shift)
         {
-            var admins = new List<Admin>();
-            using (var connection = new MySqlConnection(_connectionString))
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
-                connection.Open();
-                var command = new MySqlCommand("SELECT * FROM admins", connection);
-                using (var reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        admins.Add(new Admin
-                        {
-                            AdminID = reader.GetInt32("AdminID"),
-                            Username = reader.GetString("Username"),
-                            PasswordHash = reader.GetString("PasswordHash"),
-                            FullName = reader.GetString("FullName"),
-                            Email = reader.GetString("Email")
-                        });
-                    }
-                }
-            }
-            return admins;
-        }
-
-        public void SaveShiftRequest(ShiftRequest request)
-        {
-            using (var connection = new MySqlConnection(_connectionString))
-            {
-                connection.Open();
-                var command = new MySqlCommand(
-                    "INSERT INTO shiftrequests (StaffID, OriginalShiftID, RequestedShiftID, RequestDate, Status) " +
-                    "VALUES (@StaffID, @OriginalShiftID, @RequestedShiftID, @RequestDate, @Status)", connection);
-
-                command.Parameters.AddWithValue("@StaffID", request.StaffID);
-                command.Parameters.AddWithValue("@OriginalShiftID", request.OriginalShiftID ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@RequestedShiftID", request.RequestedShiftID ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@RequestDate", request.RequestDate);
-                command.Parameters.AddWithValue("@Status", request.Status);
-
-                command.ExecuteNonQuery();
-            }
-        }
-
-        public void SaveAttendance(Attendance attendance)
-        {
-            using (var connection = new MySqlConnection(_connectionString))
-            {
-                connection.Open();
-                var command = new MySqlCommand(
-                    "INSERT INTO attendance (StaffID, ShiftID, CheckInTime, CheckOutTime) " +
-                    "VALUES (@StaffID, @ShiftID, @CheckInTime, @CheckOutTime)", connection);
-
-                command.Parameters.AddWithValue("@StaffID", attendance.StaffID);
-                command.Parameters.AddWithValue("@ShiftID", attendance.ShiftID ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@CheckInTime", attendance.CheckInTime);
-                command.Parameters.AddWithValue("@CheckOutTime", attendance.CheckOutTime ?? (object)DBNull.Value);
-
-                command.ExecuteNonQuery();
-            }
-        }
-
-        public void UpdateShiftStatus(int shiftId, int status)
-        {
-            using (var connection = new MySqlConnection(_connectionString))
-            {
-                connection.Open();
-                var command = new MySqlCommand(
-                    "UPDATE shifts SET Status = @Status WHERE ShiftID = @ShiftID", connection);
-
-                command.Parameters.AddWithValue("@Status", status);
-                command.Parameters.AddWithValue("@ShiftID", shiftId);
-
-                command.ExecuteNonQuery();
+                conn.Open();
+                string sql = "UPDATE shifts SET StaffID = @StaffID, ShiftDate = @ShiftDate, StartTime = @StartTime, EndTime = @EndTime, Status = @Status WHERE ShiftID = @ShiftID";
+                MySqlCommand cmd = new MySqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@ShiftID", shift.ShiftID);
+                cmd.Parameters.AddWithValue("@StaffID", shift.StaffID);
+                cmd.Parameters.AddWithValue("@ShiftDate", shift.ShiftDate);
+                cmd.Parameters.AddWithValue("@StartTime", shift.StartTime);
+                cmd.Parameters.AddWithValue("@EndTime", shift.EndTime);
+                cmd.Parameters.AddWithValue("@Status", shift.Status);
+                cmd.ExecuteNonQuery();
             }
         }
     }
