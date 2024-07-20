@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
-using MySql.Data.MySqlClient;
-using shift_making_man.Controllers;
 using shift_making_man.Data;
-using shift_making_man.Services;
 using shift_making_man.Views;
 
 namespace shift_making_man
@@ -16,12 +13,14 @@ namespace shift_making_man
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            string connectionString = "server=localhost;database=19demo;user=root;password=;";
-            IDataAccess dataAccess = new MySqlDataAccess(connectionString);
-            ShiftSchedulerService schedulerService = new ShiftSchedulerService(dataAccess);
-            ShiftController shiftController = new ShiftController(schedulerService);
+            // 各データアクセスオブジェクトを作成
+            IAdminDataAccess adminDataAccess = new AdminDataAccess();
+            IShiftDataAccess shiftDataAccess = new ShiftDataAccess();
+            IStaffDataAccess staffDataAccess = new StaffDataAccess();
+            IStoreDataAccess storeDataAccess = new StoreDataAccess();
 
-            Application.Run(new MainForm(shiftController));
+            // LoginFormにすべてのデータアクセスオブジェクトを渡す
+            Application.Run(new LoginForm(adminDataAccess, shiftDataAccess, staffDataAccess, storeDataAccess));
         }
     }
 }
