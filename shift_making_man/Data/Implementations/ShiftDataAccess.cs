@@ -27,7 +27,8 @@ namespace shift_making_man.Data
                             ShiftDate = rdr.GetDateTime("ShiftDate"),
                             StartTime = rdr.GetTimeSpan("StartTime"),
                             EndTime = rdr.GetTimeSpan("EndTime"),
-                            Status = rdr.GetInt32("Status")
+                            Status = rdr.GetInt32("Status"),
+                            StoreID = rdr.IsDBNull(rdr.GetOrdinal("StoreID")) ? (int?)null : rdr.GetInt32("StoreID")
                         });
                     }
                 }
@@ -55,7 +56,8 @@ namespace shift_making_man.Data
                             ShiftDate = rdr.GetDateTime("ShiftDate"),
                             StartTime = rdr.GetTimeSpan("StartTime"),
                             EndTime = rdr.GetTimeSpan("EndTime"),
-                            Status = rdr.GetInt32("Status")
+                            Status = rdr.GetInt32("Status"),
+                            StoreID = rdr.IsDBNull(rdr.GetOrdinal("StoreID")) ? (int?)null : rdr.GetInt32("StoreID")
                         };
                     }
                 }
@@ -68,13 +70,14 @@ namespace shift_making_man.Data
             using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
                 conn.Open();
-                string sql = "INSERT INTO shifts (StaffID, ShiftDate, StartTime, EndTime, Status) VALUES (@StaffID, @ShiftDate, @StartTime, @EndTime, @Status)";
+                string sql = "INSERT INTO shifts (StaffID, ShiftDate, StartTime, EndTime, Status, StoreID) VALUES (@StaffID, @ShiftDate, @StartTime, @EndTime, @Status, @StoreID)";
                 MySqlCommand cmd = new MySqlCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@StaffID", shift.StaffID);
                 cmd.Parameters.AddWithValue("@ShiftDate", shift.ShiftDate);
                 cmd.Parameters.AddWithValue("@StartTime", shift.StartTime);
                 cmd.Parameters.AddWithValue("@EndTime", shift.EndTime);
                 cmd.Parameters.AddWithValue("@Status", shift.Status);
+                cmd.Parameters.AddWithValue("@StoreID", shift.StoreID);
                 cmd.ExecuteNonQuery();
             }
         }
@@ -84,7 +87,7 @@ namespace shift_making_man.Data
             using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
                 conn.Open();
-                string sql = "UPDATE shifts SET StaffID = @StaffID, ShiftDate = @ShiftDate, StartTime = @StartTime, EndTime = @EndTime, Status = @Status WHERE ShiftID = @ShiftID";
+                string sql = "UPDATE shifts SET StaffID = @StaffID, ShiftDate = @ShiftDate, StartTime = @StartTime, EndTime = @EndTime, Status = @Status, StoreID = @StoreID WHERE ShiftID = @ShiftID";
                 MySqlCommand cmd = new MySqlCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@ShiftID", shift.ShiftID);
                 cmd.Parameters.AddWithValue("@StaffID", shift.StaffID);
@@ -92,6 +95,7 @@ namespace shift_making_man.Data
                 cmd.Parameters.AddWithValue("@StartTime", shift.StartTime);
                 cmd.Parameters.AddWithValue("@EndTime", shift.EndTime);
                 cmd.Parameters.AddWithValue("@Status", shift.Status);
+                cmd.Parameters.AddWithValue("@StoreID", shift.StoreID);
                 cmd.ExecuteNonQuery();
             }
         }

@@ -30,6 +30,12 @@ namespace shift_making_man.Views
             LoadAdmins();
         }
 
+        private void btnOpenDashboard_Click(object sender, EventArgs e)
+        {
+            DashboardForm dashboardForm = new DashboardForm();
+            dashboardForm.Show();
+        }
+
         private void LoadShifts()
         {
             List<Shift> shifts = _shiftDataAccess.GetShifts();

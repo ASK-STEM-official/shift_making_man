@@ -16,6 +16,7 @@
         private void InitializeComponent()
         {
             this.btnLoadData = new System.Windows.Forms.Button();
+            this.btnOpenDashboard = new System.Windows.Forms.Button();
             this.dataGridViewShifts = new System.Windows.Forms.DataGridView();
             this.dataGridViewStaff = new System.Windows.Forms.DataGridView();
             this.dataGridViewStores = new System.Windows.Forms.DataGridView();
@@ -35,6 +36,16 @@
             this.btnLoadData.Text = "Load Data";
             this.btnLoadData.UseVisualStyleBackColor = true;
             this.btnLoadData.Click += new System.EventHandler(this.btnLoadData_Click);
+            // 
+            // btnOpenDashboard
+            // 
+            this.btnOpenDashboard.Location = new System.Drawing.Point(95, 13);
+            this.btnOpenDashboard.Name = "btnOpenDashboard";
+            this.btnOpenDashboard.Size = new System.Drawing.Size(120, 23);
+            this.btnOpenDashboard.TabIndex = 5;
+            this.btnOpenDashboard.Text = "Open Dashboard";
+            this.btnOpenDashboard.UseVisualStyleBackColor = true;
+            this.btnOpenDashboard.Click += new System.EventHandler(this.btnOpenDashboard_Click);
             // 
             // dataGridViewShifts
             // 
@@ -73,6 +84,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 700);
+            this.Controls.Add(this.btnOpenDashboard);
             this.Controls.Add(this.dataGridViewAdmins);
             this.Controls.Add(this.dataGridViewStores);
             this.Controls.Add(this.dataGridViewStaff);
@@ -88,6 +100,7 @@
         }
 
         private System.Windows.Forms.Button btnLoadData;
+        private System.Windows.Forms.Button btnOpenDashboard;
         private System.Windows.Forms.DataGridView dataGridViewShifts;
         private System.Windows.Forms.DataGridView dataGridViewStaff;
         private System.Windows.Forms.DataGridView dataGridViewStores;

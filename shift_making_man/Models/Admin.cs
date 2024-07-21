@@ -1,4 +1,6 @@
-﻿namespace shift_making_man.Models
+﻿using System;
+
+namespace shift_making_man.Models
 {
     public class Admin
     {
