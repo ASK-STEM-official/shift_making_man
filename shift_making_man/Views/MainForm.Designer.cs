@@ -17,6 +17,7 @@
         {
             this.btnLoadData = new System.Windows.Forms.Button();
             this.btnOpenDashboard = new System.Windows.Forms.Button();
+            this.btnLoadShifts = new System.Windows.Forms.Button();
             this.dataGridViewShifts = new System.Windows.Forms.DataGridView();
             this.dataGridViewStaff = new System.Windows.Forms.DataGridView();
             this.dataGridViewStores = new System.Windows.Forms.DataGridView();
@@ -46,6 +47,16 @@
             this.btnOpenDashboard.Text = "Open Dashboard";
             this.btnOpenDashboard.UseVisualStyleBackColor = true;
             this.btnOpenDashboard.Click += new System.EventHandler(this.btnOpenDashboard_Click);
+            // 
+            // btnLoadShifts
+            // 
+            this.btnLoadShifts.Location = new System.Drawing.Point(221, 13);
+            this.btnLoadShifts.Name = "btnLoadShifts";
+            this.btnLoadShifts.Size = new System.Drawing.Size(120, 23);
+            this.btnLoadShifts.TabIndex = 6;
+            this.btnLoadShifts.Text = "Load Shifts";
+            this.btnLoadShifts.UseVisualStyleBackColor = true;
+            this.btnLoadShifts.Click += new System.EventHandler(this.btnLoadShifts_Click);
             // 
             // dataGridViewShifts
             // 
@@ -84,6 +95,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 700);
+            this.Controls.Add(this.btnLoadShifts);
             this.Controls.Add(this.btnOpenDashboard);
             this.Controls.Add(this.dataGridViewAdmins);
             this.Controls.Add(this.dataGridViewStores);
@@ -97,10 +109,12 @@
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewStores)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewAdmins)).EndInit();
             this.ResumeLayout(false);
+
         }
 
         private System.Windows.Forms.Button btnLoadData;
         private System.Windows.Forms.Button btnOpenDashboard;
+        private System.Windows.Forms.Button btnLoadShifts;
         private System.Windows.Forms.DataGridView dataGridViewShifts;
         private System.Windows.Forms.DataGridView dataGridViewStaff;
         private System.Windows.Forms.DataGridView dataGridViewStores;

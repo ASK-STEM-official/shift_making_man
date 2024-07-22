@@ -26,9 +26,14 @@ namespace shift_making_man.Views
 
         private void btnOpenDashboard_Click(object sender, EventArgs e)
         {
-            // DashboardForm に DataAccessFacade を渡す
             DashboardForm dashboardForm = new DashboardForm(dataAccessFacade);
             dashboardForm.Show();
+        }
+
+        private void btnLoadShifts_Click(object sender, EventArgs e)
+        {
+            ShiftListForm shiftListForm = new ShiftListForm(dataAccessFacade);
+            shiftListForm.Show();
         }
 
         private void LoadShifts()
