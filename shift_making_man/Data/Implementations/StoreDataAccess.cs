@@ -15,7 +15,7 @@ namespace shift_making_man.Data
             using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
                 conn.Open();
-                string sql = "SELECT * FROM store"; // 修正: テーブル名をstoresからstoreに変更
+                string sql = "SELECT * FROM store";
                 MySqlCommand cmd = new MySqlCommand(sql, conn);
                 using (MySqlDataReader rdr = cmd.ExecuteReader())
                 {
@@ -43,7 +43,7 @@ namespace shift_making_man.Data
             using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
                 conn.Open();
-                string sql = "SELECT * FROM store WHERE StoreID = @StoreID"; // 修正: テーブル名をstoresからstoreに変更
+                string sql = "SELECT * FROM store WHERE StoreID = @StoreID";
                 MySqlCommand cmd = new MySqlCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@StoreID", storeId);
                 using (MySqlDataReader rdr = cmd.ExecuteReader())
@@ -71,7 +71,7 @@ namespace shift_making_man.Data
             using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
                 conn.Open();
-                string sql = "INSERT INTO store (OpenTime, CloseTime, BusyTimeStart, BusyTimeEnd, NormalStaffCount, BusyStaffCount) VALUES (@OpenTime, @CloseTime, @BusyTimeStart, @BusyTimeEnd, @NormalStaffCount, @BusyStaffCount)"; // 修正: テーブル名をstoresからstoreに変更
+                string sql = "INSERT INTO store (OpenTime, CloseTime, BusyTimeStart, BusyTimeEnd, NormalStaffCount, BusyStaffCount) VALUES (@OpenTime, @CloseTime, @BusyTimeStart, @BusyTimeEnd, @NormalStaffCount, @BusyStaffCount)";
                 MySqlCommand cmd = new MySqlCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@OpenTime", store.OpenTime);
                 cmd.Parameters.AddWithValue("@CloseTime", store.CloseTime);
@@ -88,7 +88,7 @@ namespace shift_making_man.Data
             using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
                 conn.Open();
-                string sql = "UPDATE store SET OpenTime = @OpenTime, CloseTime = @CloseTime, BusyTimeStart = @BusyTimeStart, BusyTimeEnd = @BusyTimeEnd, NormalStaffCount = @NormalStaffCount, BusyStaffCount = @BusyStaffCount WHERE StoreID = @StoreID"; // 修正: テーブル名をstoresからstoreに変更
+                string sql = "UPDATE store SET OpenTime = @OpenTime, CloseTime = @CloseTime, BusyTimeStart = @BusyTimeStart, BusyTimeEnd = @BusyTimeEnd, NormalStaffCount = @NormalStaffCount, BusyStaffCount = @BusyStaffCount WHERE StoreID = @StoreID";
                 MySqlCommand cmd = new MySqlCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@StoreID", store.StoreID);
                 cmd.Parameters.AddWithValue("@OpenTime", store.OpenTime);
@@ -106,7 +106,7 @@ namespace shift_making_man.Data
             using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
                 conn.Open();
-                string sql = "DELETE FROM store WHERE StoreID = @StoreID"; // 修正: テーブル名をstoresからstoreに変更
+                string sql = "DELETE FROM store WHERE StoreID = @StoreID";
                 MySqlCommand cmd = new MySqlCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@StoreID", storeId);
                 cmd.ExecuteNonQuery();

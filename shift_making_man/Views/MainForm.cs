@@ -1,25 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
-using shift_making_man.Data;
 using shift_making_man.Models;
+using shift_making_man.Services;
 
 namespace shift_making_man.Views
 {
     public partial class MainForm : Form
     {
-        private readonly IAdminDataAccess _adminDataAccess;
-        private readonly IShiftDataAccess _shiftDataAccess;
-        private readonly IStaffDataAccess _staffDataAccess;
-        private readonly IStoreDataAccess _storeDataAccess;
+        private readonly DataAccessFacade dataAccessFacade;
 
-        public MainForm(IAdminDataAccess adminDataAccess, IShiftDataAccess shiftDataAccess, IStaffDataAccess staffDataAccess, IStoreDataAccess storeDataAccess)
+        public MainForm(DataAccessFacade dataAccessFacade)
         {
             InitializeComponent();
-            this._adminDataAccess = adminDataAccess;
-            this._shiftDataAccess = shiftDataAccess;
-            this._staffDataAccess = staffDataAccess;
-            this._storeDataAccess = storeDataAccess;
+            this.dataAccessFacade = dataAccessFacade;
         }
 
         private void btnLoadData_Click(object sender, EventArgs e)
@@ -32,31 +26,32 @@ namespace shift_making_man.Views
 
         private void btnOpenDashboard_Click(object sender, EventArgs e)
         {
-            DashboardForm dashboardForm = new DashboardForm();
+            // DashboardForm に DataAccessFacade を渡す
+            DashboardForm dashboardForm = new DashboardForm(dataAccessFacade);
             dashboardForm.Show();
         }
 
         private void LoadShifts()
         {
-            List<Shift> shifts = _shiftDataAccess.GetShifts();
+            List<Shift> shifts = dataAccessFacade.ShiftDataAccess.GetShifts();
             dataGridViewShifts.DataSource = shifts;
         }
 
         private void LoadStaff()
         {
-            List<Staff> staff = _staffDataAccess.GetStaff();
+            List<Staff> staff = dataAccessFacade.StaffDataAccess.GetStaff();
             dataGridViewStaff.DataSource = staff;
         }
 
         private void LoadStores()
         {
-            List<Store> stores = _storeDataAccess.GetStores();
+            List<Store> stores = dataAccessFacade.StoreDataAccess.GetStores();
             dataGridViewStores.DataSource = stores;
         }
 
         private void LoadAdmins()
         {
-            List<Admin> admins = _adminDataAccess.GetAdmins();
+            List<Admin> admins = dataAccessFacade.AdminDataAccess.GetAdmins();
             dataGridViewAdmins.DataSource = admins;
         }
     }

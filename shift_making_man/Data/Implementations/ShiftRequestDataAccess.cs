@@ -24,14 +24,14 @@ namespace shift_making_man.Data
                         shiftRequests.Add(new ShiftRequest
                         {
                             RequestID = rdr.GetInt32("RequestID"),
+                            StoreID = rdr.GetInt32("StoreID"),
                             StaffID = rdr.IsDBNull(rdr.GetOrdinal("StaffID")) ? (int?)null : rdr.GetInt32("StaffID"),
                             OriginalShiftID = rdr.IsDBNull(rdr.GetOrdinal("OriginalShiftID")) ? (int?)null : rdr.GetInt32("OriginalShiftID"),
-                            RequestedShiftID = rdr.IsDBNull(rdr.GetOrdinal("RequestedShiftID")) ? (int?)null : rdr.GetInt32("RequestedShiftID"),
                             RequestDate = rdr.GetDateTime("RequestDate"),
+                            Status = rdr.GetInt32("Status"),
                             RequestedShiftDate = rdr.IsDBNull(rdr.GetOrdinal("RequestedShiftDate")) ? (DateTime?)null : rdr.GetDateTime("RequestedShiftDate"),
                             RequestedStartTime = rdr.IsDBNull(rdr.GetOrdinal("RequestedStartTime")) ? (TimeSpan?)null : rdr.GetTimeSpan("RequestedStartTime"),
-                            RequestedEndTime = rdr.IsDBNull(rdr.GetOrdinal("RequestedEndTime")) ? (TimeSpan?)null : rdr.GetTimeSpan("RequestedEndTime"),
-                            Status = rdr.GetInt32("Status")
+                            RequestedEndTime = rdr.IsDBNull(rdr.GetOrdinal("RequestedEndTime")) ? (TimeSpan?)null : rdr.GetTimeSpan("RequestedEndTime")
                         });
                     }
                 }
@@ -55,14 +55,14 @@ namespace shift_making_man.Data
                         shiftRequest = new ShiftRequest
                         {
                             RequestID = rdr.GetInt32("RequestID"),
+                            StoreID = rdr.GetInt32("StoreID"),
                             StaffID = rdr.IsDBNull(rdr.GetOrdinal("StaffID")) ? (int?)null : rdr.GetInt32("StaffID"),
                             OriginalShiftID = rdr.IsDBNull(rdr.GetOrdinal("OriginalShiftID")) ? (int?)null : rdr.GetInt32("OriginalShiftID"),
-                            RequestedShiftID = rdr.IsDBNull(rdr.GetOrdinal("RequestedShiftID")) ? (int?)null : rdr.GetInt32("RequestedShiftID"),
                             RequestDate = rdr.GetDateTime("RequestDate"),
+                            Status = rdr.GetInt32("Status"),
                             RequestedShiftDate = rdr.IsDBNull(rdr.GetOrdinal("RequestedShiftDate")) ? (DateTime?)null : rdr.GetDateTime("RequestedShiftDate"),
                             RequestedStartTime = rdr.IsDBNull(rdr.GetOrdinal("RequestedStartTime")) ? (TimeSpan?)null : rdr.GetTimeSpan("RequestedStartTime"),
-                            RequestedEndTime = rdr.IsDBNull(rdr.GetOrdinal("RequestedEndTime")) ? (TimeSpan?)null : rdr.GetTimeSpan("RequestedEndTime"),
-                            Status = rdr.GetInt32("Status")
+                            RequestedEndTime = rdr.IsDBNull(rdr.GetOrdinal("RequestedEndTime")) ? (TimeSpan?)null : rdr.GetTimeSpan("RequestedEndTime")
                         };
                     }
                 }
@@ -75,11 +75,11 @@ namespace shift_making_man.Data
             using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
                 conn.Open();
-                string sql = "INSERT INTO shiftrequests (StaffID, OriginalShiftID, RequestedShiftID, RequestDate, RequestedShiftDate, RequestedStartTime, RequestedEndTime, Status) VALUES (@StaffID, @OriginalShiftID, @RequestedShiftID, @RequestDate, @RequestedShiftDate, @RequestedStartTime, @RequestedEndTime, @Status)";
+                string sql = "INSERT INTO shiftrequests (StoreID, StaffID, OriginalShiftID, RequestDate, RequestedShiftDate, RequestedStartTime, RequestedEndTime, Status) VALUES (@StoreID, @StaffID, @OriginalShiftID, @RequestDate, @RequestedShiftDate, @RequestedStartTime, @RequestedEndTime, @Status)";
                 MySqlCommand cmd = new MySqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@StoreID", shiftRequest.StoreID);
                 cmd.Parameters.AddWithValue("@StaffID", shiftRequest.StaffID.HasValue ? (object)shiftRequest.StaffID.Value : DBNull.Value);
                 cmd.Parameters.AddWithValue("@OriginalShiftID", shiftRequest.OriginalShiftID.HasValue ? (object)shiftRequest.OriginalShiftID.Value : DBNull.Value);
-                cmd.Parameters.AddWithValue("@RequestedShiftID", shiftRequest.RequestedShiftID.HasValue ? (object)shiftRequest.RequestedShiftID.Value : DBNull.Value);
                 cmd.Parameters.AddWithValue("@RequestDate", shiftRequest.RequestDate);
                 cmd.Parameters.AddWithValue("@RequestedShiftDate", shiftRequest.RequestedShiftDate.HasValue ? (object)shiftRequest.RequestedShiftDate.Value : DBNull.Value);
                 cmd.Parameters.AddWithValue("@RequestedStartTime", shiftRequest.RequestedStartTime.HasValue ? (object)shiftRequest.RequestedStartTime.Value : DBNull.Value);
@@ -94,12 +94,12 @@ namespace shift_making_man.Data
             using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
                 conn.Open();
-                string sql = "UPDATE shiftrequests SET StaffID = @StaffID, OriginalShiftID = @OriginalShiftID, RequestedShiftID = @RequestedShiftID, RequestDate = @RequestDate, RequestedShiftDate = @RequestedShiftDate, RequestedStartTime = @RequestedStartTime, RequestedEndTime = @RequestedEndTime, Status = @Status WHERE RequestID = @RequestID";
+                string sql = "UPDATE shiftrequests SET StoreID = @StoreID, StaffID = @StaffID, OriginalShiftID = @OriginalShiftID, RequestDate = @RequestDate, RequestedShiftDate = @RequestedShiftDate, RequestedStartTime = @RequestedStartTime, RequestedEndTime = @RequestedEndTime, Status = @Status WHERE RequestID = @RequestID";
                 MySqlCommand cmd = new MySqlCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@RequestID", shiftRequest.RequestID);
+                cmd.Parameters.AddWithValue("@StoreID", shiftRequest.StoreID);
                 cmd.Parameters.AddWithValue("@StaffID", shiftRequest.StaffID.HasValue ? (object)shiftRequest.StaffID.Value : DBNull.Value);
                 cmd.Parameters.AddWithValue("@OriginalShiftID", shiftRequest.OriginalShiftID.HasValue ? (object)shiftRequest.OriginalShiftID.Value : DBNull.Value);
-                cmd.Parameters.AddWithValue("@RequestedShiftID", shiftRequest.RequestedShiftID.HasValue ? (object)shiftRequest.RequestedShiftID.Value : DBNull.Value);
                 cmd.Parameters.AddWithValue("@RequestDate", shiftRequest.RequestDate);
                 cmd.Parameters.AddWithValue("@RequestedShiftDate", shiftRequest.RequestedShiftDate.HasValue ? (object)shiftRequest.RequestedShiftDate.Value : DBNull.Value);
                 cmd.Parameters.AddWithValue("@RequestedStartTime", shiftRequest.RequestedStartTime.HasValue ? (object)shiftRequest.RequestedStartTime.Value : DBNull.Value);
