@@ -111,5 +111,35 @@ namespace shift_making_man.Data
                 cmd.ExecuteNonQuery();
             }
         }
+
+        // 新しく追加したメソッド
+        public List<Shift> GetShiftsForStaff(int staffId)
+        {
+            List<Shift> shifts = new List<Shift>();
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            {
+                conn.Open();
+                string sql = "SELECT * FROM shifts WHERE StaffID = @StaffID";
+                MySqlCommand cmd = new MySqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@StaffID", staffId);
+                using (MySqlDataReader rdr = cmd.ExecuteReader())
+                {
+                    while (rdr.Read())
+                    {
+                        shifts.Add(new Shift
+                        {
+                            ShiftID = rdr.GetInt32("ShiftID"),
+                            StaffID = rdr.IsDBNull(rdr.GetOrdinal("StaffID")) ? (int?)null : rdr.GetInt32("StaffID"),
+                            ShiftDate = rdr.GetDateTime("ShiftDate"),
+                            StartTime = rdr.GetTimeSpan("StartTime"),
+                            EndTime = rdr.GetTimeSpan("EndTime"),
+                            Status = rdr.GetInt32("Status"),
+                            StoreID = rdr.IsDBNull(rdr.GetOrdinal("StoreID")) ? (int?)null : rdr.GetInt32("StoreID")
+                        });
+                    }
+                }
+            }
+            return shifts;
+        }
     }
 }

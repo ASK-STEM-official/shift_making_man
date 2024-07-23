@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using shift_making_man.Controllers;
 using shift_making_man.Models;
 using shift_making_man.Services;
 
@@ -36,6 +37,17 @@ namespace shift_making_man.Views
             shiftListForm.Show();
         }
 
+        private void btnOpenShiftScheduler_Click(object sender, EventArgs e)
+        {
+            ShiftSchedulerController controller = new ShiftSchedulerController(
+                dataAccessFacade.ShiftDataAccess,
+                dataAccessFacade.StoreDataAccess,
+                dataAccessFacade.StaffDataAccess,
+                dataAccessFacade.ShiftRequestDataAccess); // 修正: 4つの引数を渡す
+            ShiftSchedulerForm shiftSchedulerForm = new ShiftSchedulerForm(controller);
+            shiftSchedulerForm.Show();
+        }
+
         private void LoadShifts()
         {
             List<Shift> shifts = dataAccessFacade.ShiftDataAccess.GetShifts();
@@ -44,7 +56,7 @@ namespace shift_making_man.Views
 
         private void LoadStaff()
         {
-            List<Staff> staff = dataAccessFacade.StaffDataAccess.GetStaff();
+            List<Staff> staff = dataAccessFacade.StaffDataAccess.GetStaff(); // 修正: メソッド名を修正
             dataGridViewStaff.DataSource = staff;
         }
 

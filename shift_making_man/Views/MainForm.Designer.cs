@@ -18,6 +18,7 @@
             this.btnLoadData = new System.Windows.Forms.Button();
             this.btnOpenDashboard = new System.Windows.Forms.Button();
             this.btnLoadShifts = new System.Windows.Forms.Button();
+            this.btnOpenShiftScheduler = new System.Windows.Forms.Button(); // 新しいボタンを追加
             this.dataGridViewShifts = new System.Windows.Forms.DataGridView();
             this.dataGridViewStaff = new System.Windows.Forms.DataGridView();
             this.dataGridViewStores = new System.Windows.Forms.DataGridView();
@@ -58,6 +59,16 @@
             this.btnLoadShifts.UseVisualStyleBackColor = true;
             this.btnLoadShifts.Click += new System.EventHandler(this.btnLoadShifts_Click);
             // 
+            // btnOpenShiftScheduler
+            // 
+            this.btnOpenShiftScheduler.Location = new System.Drawing.Point(347, 13);
+            this.btnOpenShiftScheduler.Name = "btnOpenShiftScheduler";
+            this.btnOpenShiftScheduler.Size = new System.Drawing.Size(150, 23);
+            this.btnOpenShiftScheduler.TabIndex = 7;
+            this.btnOpenShiftScheduler.Text = "Open Shift Scheduler";
+            this.btnOpenShiftScheduler.UseVisualStyleBackColor = true;
+            this.btnOpenShiftScheduler.Click += new System.EventHandler(this.btnOpenShiftScheduler_Click);
+            // 
             // dataGridViewShifts
             // 
             this.dataGridViewShifts.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
@@ -95,6 +106,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 700);
+            this.Controls.Add(this.btnOpenShiftScheduler); // 新しいボタンを追加
             this.Controls.Add(this.btnLoadShifts);
             this.Controls.Add(this.btnOpenDashboard);
             this.Controls.Add(this.dataGridViewAdmins);
@@ -109,12 +121,12 @@
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewStores)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewAdmins)).EndInit();
             this.ResumeLayout(false);
-
         }
 
         private System.Windows.Forms.Button btnLoadData;
         private System.Windows.Forms.Button btnOpenDashboard;
         private System.Windows.Forms.Button btnLoadShifts;
+        private System.Windows.Forms.Button btnOpenShiftScheduler; // 新しいボタンのフィールド
         private System.Windows.Forms.DataGridView dataGridViewShifts;
         private System.Windows.Forms.DataGridView dataGridViewStaff;
         private System.Windows.Forms.DataGridView dataGridViewStores;
