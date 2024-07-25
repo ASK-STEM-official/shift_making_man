@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using shift_making_man.Models;
 using shift_making_man.Data;
 
@@ -20,83 +21,91 @@ namespace shift_making_man.Controllers
             _shiftRequestDataAccess = shiftRequestDataAccess;
         }
 
-        public List<Shift> CreateShifts(DateTime startDate, DateTime endDate)
+        public List<Store> GetStores()
         {
-            List<Shift> shifts = new List<Shift>();
-            List<Store> stores = _storeDataAccess.GetStores(); // 修正: GetAllStores → GetStores
-            List<Staff> staffList = _staffDataAccess.GetStaff();  // 修正
+            return _storeDataAccess.GetStores();
+        }
 
-            foreach (Store store in stores)
+        public List<Shift> CreateShifts(DateTime startDate, DateTime endDate, out List<string> errors)
+        {
+            var shifts = new List<Shift>();
+            var stores = _storeDataAccess.GetStores();
+            var staffList = _staffDataAccess.GetStaff();
+            errors = new List<string>();
+
+            foreach (var store in stores)
             {
-                for (DateTime date = startDate; date <= endDate; date = date.AddDays(1))
+                for (var date = startDate; date <= endDate; date = date.AddDays(1))
                 {
-                    shifts.AddRange(CreateDailyShifts(store, date, staffList));
+                    var dailyShifts = CreateDailyShifts(store, date, staffList, out List<string> dailyErrors);
+                    shifts.AddRange(dailyShifts);
+                    errors.AddRange(dailyErrors);
                 }
             }
 
-            // データベースにシフトを保存
-            foreach (Shift shift in shifts)
-            {
-                _shiftDataAccess.AddShift(shift);
-            }
+            shifts = SimulatedAnnealingOptimize(shifts);
+
+            var shiftIssues = GetShiftIssues(shifts);
+            errors.AddRange(shiftIssues);
+
+            SaveShiftsToDatabase(shifts);
 
             return shifts;
         }
 
-        private List<Shift> CreateDailyShifts(Store store, DateTime date, List<Staff> staffList)
+        private List<Shift> CreateDailyShifts(Store store, DateTime date, List<Staff> staffList, out List<string> errors)
         {
-            List<Shift> dailyShifts = new List<Shift>();
+            var dailyShifts = new List<Shift>();
+            errors = new List<string>();
 
-            // 忙しい時間帯のシフト作成
-            dailyShifts.AddRange(CreateShiftsForTimeRange(store, date, store.BusyTimeStart, store.BusyTimeEnd, store.BusyStaffCount, staffList, true));
+            var busyShifts = CreateShiftsForTimeRange(store, date, store.BusyTimeStart, store.BusyTimeEnd, store.BusyStaffCount, staffList, true, out List<string> busyErrors);
+            var normalMorningShifts = CreateShiftsForTimeRange(store, date, store.OpenTime, store.BusyTimeStart, store.NormalStaffCount, staffList, false, out List<string> normalMorningErrors);
+            var normalEveningShifts = CreateShiftsForTimeRange(store, date, store.BusyTimeEnd, store.CloseTime, store.NormalStaffCount, staffList, false, out List<string> normalEveningErrors);
 
-            // 通常の時間帯のシフト作成
-            dailyShifts.AddRange(CreateShiftsForTimeRange(store, date, store.OpenTime, store.BusyTimeStart, store.NormalStaffCount, staffList, false));
-            dailyShifts.AddRange(CreateShiftsForTimeRange(store, date, store.BusyTimeEnd, store.CloseTime, store.NormalStaffCount, staffList, false));
+            dailyShifts.AddRange(busyShifts);
+            dailyShifts.AddRange(normalMorningShifts);
+            dailyShifts.AddRange(normalEveningShifts);
 
-            // 休憩時間の挿入（6時間以上の連続勤務を防ぐ）
+            errors.AddRange(busyErrors);
+            errors.AddRange(normalMorningErrors);
+            errors.AddRange(normalEveningErrors);
+
             InsertBreaks(dailyShifts);
 
             return dailyShifts;
         }
 
-        private List<Shift> CreateShiftsForTimeRange(Store store, DateTime date, TimeSpan startTime, TimeSpan endTime, int requiredStaffCount, List<Staff> staffList, bool isBusyTime)
+        private List<Shift> CreateShiftsForTimeRange(Store store, DateTime date, TimeSpan startTime, TimeSpan endTime, int requiredStaffCount, List<Staff> staffList, bool isBusyTime, out List<string> errors)
         {
-            List<Shift> shifts = new List<Shift>();
+            var shifts = new List<Shift>();
+            errors = new List<string>();
+
+            var availableStaff = staffList.Where(staff => IsStaffAvailable(staff, date, startTime, endTime, isBusyTime)).ToList();
 
             for (int i = 0; i < requiredStaffCount; i++)
             {
-                Staff staff = AssignStaffForShift(date, startTime, endTime, staffList, isBusyTime);
-                if (staff != null)
+                if (availableStaff.Count == 0)
                 {
-                    Shift shift = new Shift
-                    {
-                        StoreID = store.StoreID,
-                        StaffID = staff.StaffID,
-                        ShiftDate = date,
-                        StartTime = startTime,
-                        EndTime = endTime,
-                        Status = isBusyTime ? 1 : 0 // 状態を設定（忙しい時間帯は1、それ以外は0）
-                    };
-                    shifts.Add(shift);
+                    errors.Add($"店舗ID: {store.StoreID} - 日付: {date.ToShortDateString()} - 時間: {startTime}から{endTime}のシフトに必要なスタッフが不足しています。");
+                    break;
                 }
+
+                var staff = availableStaff.First();
+                availableStaff.Remove(staff);
+
+                var shift = new Shift
+                {
+                    StoreID = store.StoreID,
+                    StaffID = staff.StaffID,
+                    ShiftDate = date,
+                    StartTime = startTime,
+                    EndTime = endTime,
+                    Status = isBusyTime ? 1 : 0
+                };
+                shifts.Add(shift);
             }
 
             return shifts;
-        }
-
-        private Staff AssignStaffForShift(DateTime date, TimeSpan startTime, TimeSpan endTime, List<Staff> staffList, bool isBusyTime)
-        {
-            // スタッフの割り当てロジックを実装
-            foreach (Staff staff in staffList)
-            {
-                if (IsStaffAvailable(staff, date, startTime, endTime, isBusyTime))
-                {
-                    return staff;
-                }
-            }
-
-            return null;
         }
 
         private bool IsStaffAvailable(Staff staff, DateTime date, TimeSpan startTime, TimeSpan endTime, bool isBusyTime)
@@ -106,62 +115,134 @@ namespace shift_making_man.Controllers
 
         private bool HasOverlappingShifts(Staff staff, DateTime date, TimeSpan startTime, TimeSpan endTime)
         {
-            var existingShifts = _shiftDataAccess.GetShiftsForStaff(staff.StaffID);  // 修正
-            foreach (var shift in existingShifts)
-            {
-                if (shift.ShiftDate.Date == date.Date && shift.StartTime < endTime && shift.EndTime > startTime)
-                {
-                    return true;
-                }
-            }
-            return false;
+            var existingShifts = _shiftDataAccess.GetShiftsForStaff(staff.StaffID);
+            return existingShifts.Any(shift =>
+                shift.ShiftDate.Date == date.Date &&
+                shift.StartTime < endTime &&
+                shift.EndTime > startTime);
         }
 
         private bool HasExceededDailyHours(Staff staff, DateTime date, TimeSpan startTime, TimeSpan endTime)
         {
-            var existingShifts = _shiftDataAccess.GetShiftsForStaff(staff.StaffID);  // 修正
-            TimeSpan totalWorkedHours = TimeSpan.Zero;
-            foreach (var shift in existingShifts)
-            {
-                if (shift.ShiftDate.Date == date.Date)
-                {
-                    totalWorkedHours += shift.EndTime - shift.StartTime;
-                }
-            }
-            totalWorkedHours += endTime - startTime;
-            return totalWorkedHours.TotalHours > 8;
+            var existingShifts = _shiftDataAccess.GetShiftsForStaff(staff.StaffID);
+            double totalWorkedHours = existingShifts
+                .Where(shift => shift.ShiftDate.Date == date.Date)
+                .Sum(shift => (shift.EndTime - shift.StartTime).TotalHours);
+            totalWorkedHours += (endTime - startTime).TotalHours;
+            return totalWorkedHours > 8;
         }
 
         private void InsertBreaks(List<Shift> shifts)
         {
-            // 休憩時間の挿入（6時間以上の連続勤務を防ぐ）
-            List<Shift> shiftsWithBreaks = new List<Shift>(shifts); // 修正: 新しいリストを作成
+            var shiftsWithBreaks = new List<Shift>();
+
             foreach (var shift in shifts)
             {
+                shiftsWithBreaks.Add(shift);
+
                 if (shift.EndTime - shift.StartTime > TimeSpan.FromHours(6))
                 {
-                    // 6時間を超える勤務の場合、休憩を挿入
-                    shiftsWithBreaks.Add(new Shift
+                    var breakShift = new Shift
                     {
                         StoreID = shift.StoreID,
                         StaffID = shift.StaffID,
                         ShiftDate = shift.ShiftDate,
-                        StartTime = shift.EndTime, // 修正
-                        EndTime = shift.EndTime.Add(TimeSpan.FromHours(1)), // 1時間の休憩
-                        Status = 2 // 休憩シフトのステータス（例：2）
-                    });
+                        StartTime = shift.EndTime,
+                        EndTime = shift.EndTime.Add(TimeSpan.FromHours(1)),
+                        Status = 2 // 休憩のステータス
+                    };
+                    shiftsWithBreaks.Add(breakShift);
                 }
             }
 
-            // 元のリストを置き換える
             shifts.Clear();
             shifts.AddRange(shiftsWithBreaks);
         }
 
-        // GetStores メソッドを追加
-        public List<Store> GetStores()
+        private void SaveShiftsToDatabase(List<Shift> shifts)
         {
-            return _storeDataAccess.GetStores();
+            foreach (var shift in shifts)
+            {
+                _shiftDataAccess.AddShift(shift);
+            }
+        }
+
+        private List<Shift> SimulatedAnnealingOptimize(List<Shift> initialShifts)
+        {
+            var currentShifts = new List<Shift>(initialShifts);
+            var bestShifts = new List<Shift>(initialShifts);
+            double temperature = 10000;
+            double coolingRate = 0.003;
+            Random rand = new Random();
+
+            while (temperature > 1)
+            {
+                var newShifts = new List<Shift>(currentShifts);
+                int index1 = rand.Next(newShifts.Count);
+                int index2 = rand.Next(newShifts.Count);
+                var tempShift = newShifts[index1];
+                newShifts[index1] = newShifts[index2];
+                newShifts[index2] = tempShift;
+
+                double currentEnergy = CalculateShiftEnergy(currentShifts);
+                double newEnergy = CalculateShiftEnergy(newShifts);
+
+                if (AcceptanceProbability(currentEnergy, newEnergy, temperature) > rand.NextDouble())
+                {
+                    currentShifts = new List<Shift>(newShifts);
+                }
+
+                if (CalculateShiftEnergy(currentShifts) < CalculateShiftEnergy(bestShifts))
+                {
+                    bestShifts = new List<Shift>(currentShifts);
+                }
+
+                temperature *= 1 - coolingRate;
+            }
+
+            return bestShifts;
+        }
+
+        private double CalculateShiftEnergy(List<Shift> shifts)
+        {
+            // ここにエネルギー計算のロジックを実装
+            // 例: スタッフの過剰なシフト数や営業時間外シフトなど
+            double energy = 0.0;
+            foreach (var shift in shifts)
+            {
+                if (shift.StartTime < TimeSpan.FromHours(9) || shift.EndTime > TimeSpan.FromHours(21))
+                {
+                    energy += 10.0; // 営業時間外のシフトに高いペナルティ
+                }
+
+                // シフトが過剰に配置されている場合のペナルティなど
+                // ここにさらに条件を追加することも可能です
+            }
+            return energy;
+        }
+
+        private double AcceptanceProbability(double currentEnergy, double newEnergy, double temperature)
+        {
+            if (newEnergy < currentEnergy)
+            {
+                return 1.0;
+            }
+            return Math.Exp((currentEnergy - newEnergy) / temperature);
+        }
+
+        private List<string> GetShiftIssues(List<Shift> shifts)
+        {
+            var issues = new List<string>();
+
+            foreach (var shift in shifts)
+            {
+                if (shift.StartTime < TimeSpan.FromHours(9) || shift.EndTime > TimeSpan.FromHours(21))
+                {
+                    issues.Add($"店舗ID: {shift.StoreID} - 日付: {shift.ShiftDate.ToShortDateString()} - シフトの時間が営業時間外です: {shift.StartTime}から{shift.EndTime}");
+                }
+            }
+
+            return issues;
         }
     }
 }

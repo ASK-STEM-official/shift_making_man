@@ -25,8 +25,8 @@ namespace shift_making_man.Data
                             ShiftID = rdr.GetInt32("ShiftID"),
                             StaffID = rdr.IsDBNull(rdr.GetOrdinal("StaffID")) ? (int?)null : rdr.GetInt32("StaffID"),
                             ShiftDate = rdr.GetDateTime("ShiftDate"),
-                            StartTime = rdr.GetTimeSpan("StartTime"),
-                            EndTime = rdr.GetTimeSpan("EndTime"),
+                            StartTime = rdr.GetTimeSpan(rdr.GetOrdinal("StartTime")),
+                            EndTime = rdr.GetTimeSpan(rdr.GetOrdinal("EndTime")),
                             Status = rdr.GetInt32("Status"),
                             StoreID = rdr.IsDBNull(rdr.GetOrdinal("StoreID")) ? (int?)null : rdr.GetInt32("StoreID")
                         });
@@ -54,8 +54,8 @@ namespace shift_making_man.Data
                             ShiftID = rdr.GetInt32("ShiftID"),
                             StaffID = rdr.IsDBNull(rdr.GetOrdinal("StaffID")) ? (int?)null : rdr.GetInt32("StaffID"),
                             ShiftDate = rdr.GetDateTime("ShiftDate"),
-                            StartTime = rdr.GetTimeSpan("StartTime"),
-                            EndTime = rdr.GetTimeSpan("EndTime"),
+                            StartTime = rdr.GetTimeSpan(rdr.GetOrdinal("StartTime")),
+                            EndTime = rdr.GetTimeSpan(rdr.GetOrdinal("EndTime")),
                             Status = rdr.GetInt32("Status"),
                             StoreID = rdr.IsDBNull(rdr.GetOrdinal("StoreID")) ? (int?)null : rdr.GetInt32("StoreID")
                         };
@@ -112,7 +112,6 @@ namespace shift_making_man.Data
             }
         }
 
-        // 新しく追加したメソッド
         public List<Shift> GetShiftsForStaff(int staffId)
         {
             List<Shift> shifts = new List<Shift>();
@@ -131,8 +130,37 @@ namespace shift_making_man.Data
                             ShiftID = rdr.GetInt32("ShiftID"),
                             StaffID = rdr.IsDBNull(rdr.GetOrdinal("StaffID")) ? (int?)null : rdr.GetInt32("StaffID"),
                             ShiftDate = rdr.GetDateTime("ShiftDate"),
-                            StartTime = rdr.GetTimeSpan("StartTime"),
-                            EndTime = rdr.GetTimeSpan("EndTime"),
+                            StartTime = rdr.GetTimeSpan(rdr.GetOrdinal("StartTime")),
+                            EndTime = rdr.GetTimeSpan(rdr.GetOrdinal("EndTime")),
+                            Status = rdr.GetInt32("Status"),
+                            StoreID = rdr.IsDBNull(rdr.GetOrdinal("StoreID")) ? (int?)null : rdr.GetInt32("StoreID")
+                        });
+                    }
+                }
+            }
+            return shifts;
+        }
+
+        public List<Shift> GetShiftsForStore(int storeId)
+        {
+            List<Shift> shifts = new List<Shift>();
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            {
+                conn.Open();
+                string sql = "SELECT * FROM shifts WHERE StoreID = @StoreID";
+                MySqlCommand cmd = new MySqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@StoreID", storeId);
+                using (MySqlDataReader rdr = cmd.ExecuteReader())
+                {
+                    while (rdr.Read())
+                    {
+                        shifts.Add(new Shift
+                        {
+                            ShiftID = rdr.GetInt32("ShiftID"),
+                            StaffID = rdr.IsDBNull(rdr.GetOrdinal("StaffID")) ? (int?)null : rdr.GetInt32("StaffID"),
+                            ShiftDate = rdr.GetDateTime("ShiftDate"),
+                            StartTime = rdr.GetTimeSpan(rdr.GetOrdinal("StartTime")),
+                            EndTime = rdr.GetTimeSpan(rdr.GetOrdinal("EndTime")),
                             Status = rdr.GetInt32("Status"),
                             StoreID = rdr.IsDBNull(rdr.GetOrdinal("StoreID")) ? (int?)null : rdr.GetInt32("StoreID")
                         });

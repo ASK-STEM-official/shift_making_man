@@ -11,5 +11,6 @@ namespace shift_making_man.Data
         void UpdateShift(Shift shift);
         void DeleteShift(int shiftId);
         List<Shift> GetShiftsForStaff(int staffId); // 追加
+        List<Shift> GetShiftsForStore(int storeId);
     }
 }
