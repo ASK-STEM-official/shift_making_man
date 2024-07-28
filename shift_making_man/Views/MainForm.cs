@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using shift_making_man.Controllers;
 using shift_making_man.Models;
-using shift_making_man.Services;
+using shift_making_man.Data;
 
 namespace shift_making_man.Views
 {
@@ -23,6 +23,7 @@ namespace shift_making_man.Views
             LoadStaff();
             LoadStores();
             LoadAdmins();
+            LoadShiftRequests(); // 追加
         }
 
         private void btnOpenDashboard_Click(object sender, EventArgs e)
@@ -39,12 +40,15 @@ namespace shift_making_man.Views
 
         private void btnOpenShiftScheduler_Click(object sender, EventArgs e)
         {
-            ShiftSchedulerController controller = new ShiftSchedulerController(
-                dataAccessFacade.ShiftDataAccess,
-                dataAccessFacade.StoreDataAccess,
-                dataAccessFacade.StaffDataAccess,
-                dataAccessFacade.ShiftRequestDataAccess); // 修正: 4つの引数を渡す
-            ShiftSchedulerForm shiftSchedulerForm = new ShiftSchedulerForm(controller);
+            ShiftSchedulerController shiftSchedulerController = new ShiftSchedulerController(
+                dataAccessFacade.ShiftCreationService, // ShiftCreationService 型
+                dataAccessFacade.ShiftModificationService, // ShiftModificationService 型
+                dataAccessFacade.ShiftValidationService, // ShiftValidationService 型
+                dataAccessFacade.ShiftOptimizationService, // ShiftOptimizationService 型
+                dataAccessFacade.StoreDataAccess, // IStoreDataAccess 型
+                dataAccessFacade.ShiftDataAccess); // IShiftDataAccess 型
+
+            ShiftSchedulerForm shiftSchedulerForm = new ShiftSchedulerForm(shiftSchedulerController);
             shiftSchedulerForm.Show();
         }
 
@@ -56,7 +60,7 @@ namespace shift_making_man.Views
 
         private void LoadStaff()
         {
-            List<Staff> staff = dataAccessFacade.StaffDataAccess.GetStaff(); // 修正: メソッド名を修正
+            List<Staff> staff = dataAccessFacade.StaffDataAccess.GetStaff();
             dataGridViewStaff.DataSource = staff;
         }
 
@@ -70,6 +74,12 @@ namespace shift_making_man.Views
         {
             List<Admin> admins = dataAccessFacade.AdminDataAccess.GetAdmins();
             dataGridViewAdmins.DataSource = admins;
+        }
+
+        private void LoadShiftRequests()
+        {
+            List<ShiftRequest> shiftRequests = dataAccessFacade.ShiftRequestDataAccess.GetShiftRequests();
+            dataGridViewShiftRequests.DataSource = shiftRequests;
         }
     }
 }

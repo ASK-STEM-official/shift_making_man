@@ -11,5 +11,7 @@ namespace shift_making_man.Models
         public TimeSpan EndTime { get; set; }
         public int Status { get; set; }
         public int? StoreID { get; set; }
+
+        public Staff Staff { get; set; }
     }
 }

@@ -18,15 +18,17 @@
             this.btnLoadData = new System.Windows.Forms.Button();
             this.btnOpenDashboard = new System.Windows.Forms.Button();
             this.btnLoadShifts = new System.Windows.Forms.Button();
-            this.btnOpenShiftScheduler = new System.Windows.Forms.Button(); // 新しいボタンを追加
+            this.btnOpenShiftScheduler = new System.Windows.Forms.Button();
             this.dataGridViewShifts = new System.Windows.Forms.DataGridView();
             this.dataGridViewStaff = new System.Windows.Forms.DataGridView();
             this.dataGridViewStores = new System.Windows.Forms.DataGridView();
             this.dataGridViewAdmins = new System.Windows.Forms.DataGridView();
+            this.dataGridViewShiftRequests = new System.Windows.Forms.DataGridView(); // 新しいDataGridViewを追加
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewShifts)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewStaff)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewStores)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewAdmins)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewShiftRequests)).BeginInit(); // 新しいDataGridViewを初期化
             this.SuspendLayout();
             // 
             // btnLoadData
@@ -101,12 +103,21 @@
             this.dataGridViewAdmins.Size = new System.Drawing.Size(775, 150);
             this.dataGridViewAdmins.TabIndex = 4;
             // 
+            // dataGridViewShiftRequests
+            // 
+            this.dataGridViewShiftRequests.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridViewShiftRequests.Location = new System.Drawing.Point(13, 670); // 新しいDataGridViewの位置
+            this.dataGridViewShiftRequests.Name = "dataGridViewShiftRequests";
+            this.dataGridViewShiftRequests.Size = new System.Drawing.Size(775, 150); // サイズを調整
+            this.dataGridViewShiftRequests.TabIndex = 8; // 新しいDataGridViewのTabIndex
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 700);
-            this.Controls.Add(this.btnOpenShiftScheduler); // 新しいボタンを追加
+            this.ClientSize = new System.Drawing.Size(800, 830); // フォームのサイズを調整
+            this.Controls.Add(this.dataGridViewShiftRequests); // 新しいDataGridViewを追加
+            this.Controls.Add(this.btnOpenShiftScheduler);
             this.Controls.Add(this.btnLoadShifts);
             this.Controls.Add(this.btnOpenDashboard);
             this.Controls.Add(this.dataGridViewAdmins);
@@ -120,16 +131,18 @@
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewStaff)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewStores)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewAdmins)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewShiftRequests)).EndInit(); // 新しいDataGridViewの初期化
             this.ResumeLayout(false);
         }
 
         private System.Windows.Forms.Button btnLoadData;
         private System.Windows.Forms.Button btnOpenDashboard;
         private System.Windows.Forms.Button btnLoadShifts;
-        private System.Windows.Forms.Button btnOpenShiftScheduler; // 新しいボタンのフィールド
+        private System.Windows.Forms.Button btnOpenShiftScheduler;
         private System.Windows.Forms.DataGridView dataGridViewShifts;
         private System.Windows.Forms.DataGridView dataGridViewStaff;
         private System.Windows.Forms.DataGridView dataGridViewStores;
         private System.Windows.Forms.DataGridView dataGridViewAdmins;
+        private System.Windows.Forms.DataGridView dataGridViewShiftRequests; // 新しいDataGridViewのフィールド
     }
 }

@@ -26,10 +26,10 @@ namespace shift_making_man.Data
                             stores.Add(new Store
                             {
                                 StoreID = rdr.GetInt32("StoreID"),
-                                OpenTime = rdr.GetTimeSpan("OpenTime"),
-                                CloseTime = rdr.GetTimeSpan("CloseTime"),
-                                BusyTimeStart = rdr.GetTimeSpan("BusyTimeStart"),
-                                BusyTimeEnd = rdr.GetTimeSpan("BusyTimeEnd"),
+                                OpenTime = rdr.GetTimeSpan(rdr.GetOrdinal("OpenTime")),
+                                CloseTime = rdr.GetTimeSpan(rdr.GetOrdinal("CloseTime")),
+                                BusyTimeStart = rdr.GetTimeSpan(rdr.GetOrdinal("BusyTimeStart")),
+                                BusyTimeEnd = rdr.GetTimeSpan(rdr.GetOrdinal("BusyTimeEnd")),
                                 NormalStaffCount = rdr.GetInt32("NormalStaffCount"),
                                 BusyStaffCount = rdr.GetInt32("BusyStaffCount")
                             });
@@ -39,12 +39,10 @@ namespace shift_making_man.Data
             }
             catch (MySqlException ex)
             {
-                // エラーログに記録するなど
                 Console.WriteLine($"MySQLエラー: {ex.Message}");
             }
             catch (FormatException ex)
             {
-                // TimeSpan 変換エラーの処理
                 Console.WriteLine($"TimeSpan変換エラー: {ex.Message}");
             }
             return stores;
@@ -68,10 +66,10 @@ namespace shift_making_man.Data
                             store = new Store
                             {
                                 StoreID = rdr.GetInt32("StoreID"),
-                                OpenTime = rdr.GetTimeSpan("OpenTime"),
-                                CloseTime = rdr.GetTimeSpan("CloseTime"),
-                                BusyTimeStart = rdr.GetTimeSpan("BusyTimeStart"),
-                                BusyTimeEnd = rdr.GetTimeSpan("BusyTimeEnd"),
+                                OpenTime = rdr.GetTimeSpan(rdr.GetOrdinal("OpenTime")),
+                                CloseTime = rdr.GetTimeSpan(rdr.GetOrdinal("CloseTime")),
+                                BusyTimeStart = rdr.GetTimeSpan(rdr.GetOrdinal("BusyTimeStart")),
+                                BusyTimeEnd = rdr.GetTimeSpan(rdr.GetOrdinal("BusyTimeEnd")),
                                 NormalStaffCount = rdr.GetInt32("NormalStaffCount"),
                                 BusyStaffCount = rdr.GetInt32("BusyStaffCount")
                             };
@@ -81,12 +79,10 @@ namespace shift_making_man.Data
             }
             catch (MySqlException ex)
             {
-                // エラーログに記録するなど
                 Console.WriteLine($"MySQLエラー: {ex.Message}");
             }
             catch (FormatException ex)
             {
-                // TimeSpan 変換エラーの処理
                 Console.WriteLine($"TimeSpan変換エラー: {ex.Message}");
             }
             return store;
@@ -112,7 +108,6 @@ namespace shift_making_man.Data
             }
             catch (MySqlException ex)
             {
-                // エラーログに記録するなど
                 Console.WriteLine($"MySQLエラー: {ex.Message}");
             }
         }
@@ -138,7 +133,6 @@ namespace shift_making_man.Data
             }
             catch (MySqlException ex)
             {
-                // エラーログに記録するなど
                 Console.WriteLine($"MySQLエラー: {ex.Message}");
             }
         }
@@ -158,9 +152,62 @@ namespace shift_making_man.Data
             }
             catch (MySqlException ex)
             {
-                // エラーログに記録するなど
                 Console.WriteLine($"MySQLエラー: {ex.Message}");
             }
+        }
+
+        public TimeSpan GetStoreOpenTime(int storeId)
+        {
+            TimeSpan openTime = default;
+            try
+            {
+                using (MySqlConnection conn = new MySqlConnection(connectionString))
+                {
+                    conn.Open();
+                    string sql = "SELECT OpenTime FROM store WHERE StoreID = @StoreID";
+                    MySqlCommand cmd = new MySqlCommand(sql, conn);
+                    cmd.Parameters.AddWithValue("@StoreID", storeId);
+                    using (MySqlDataReader rdr = cmd.ExecuteReader())
+                    {
+                        if (rdr.Read())
+                        {
+                            openTime = rdr.GetTimeSpan(rdr.GetOrdinal("OpenTime"));
+                        }
+                    }
+                }
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine($"MySQLエラー: {ex.Message}");
+            }
+            return openTime;
+        }
+
+        public TimeSpan GetStoreCloseTime(int storeId)
+        {
+            TimeSpan closeTime = default;
+            try
+            {
+                using (MySqlConnection conn = new MySqlConnection(connectionString))
+                {
+                    conn.Open();
+                    string sql = "SELECT CloseTime FROM store WHERE StoreID = @StoreID";
+                    MySqlCommand cmd = new MySqlCommand(sql, conn);
+                    cmd.Parameters.AddWithValue("@StoreID", storeId);
+                    using (MySqlDataReader rdr = cmd.ExecuteReader())
+                    {
+                        if (rdr.Read())
+                        {
+                            closeTime = rdr.GetTimeSpan(rdr.GetOrdinal("CloseTime"));
+                        }
+                    }
+                }
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine($"MySQLエラー: {ex.Message}");
+            }
+            return closeTime;
         }
     }
 }

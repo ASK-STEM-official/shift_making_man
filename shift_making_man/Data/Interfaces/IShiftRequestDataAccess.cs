@@ -10,5 +10,11 @@ namespace shift_making_man.Data
         void AddShiftRequest(ShiftRequest shiftRequest);
         void UpdateShiftRequest(ShiftRequest shiftRequest);
         void DeleteShiftRequest(int requestId);
+        int GetPendingShiftRequestCount();
+        int GetCountByOriginalShiftID(int? originalShiftID);
+        int GetCountByOriginalShiftIDNotNull();
+        (int NewRequestCount, int ChangeRequestCount) GetPendingShiftRequestCounts();
+        List<ShiftRequest> GetShiftRequestsByStoreId(int storeId);
+        List<ShiftRequest> GetPendingRequests();
     }
 }

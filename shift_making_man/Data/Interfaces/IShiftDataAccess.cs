@@ -1,16 +1,17 @@
-﻿using System.Collections.Generic;
-using shift_making_man.Models;
+﻿using shift_making_man.Models;
+using System.Collections.Generic;
 
-namespace shift_making_man.Data
+public interface IShiftDataAccess
 {
-    public interface IShiftDataAccess
-    {
-        List<Shift> GetShifts();
-        Shift GetShiftById(int shiftId);
-        void AddShift(Shift shift);
-        void UpdateShift(Shift shift);
-        void DeleteShift(int shiftId);
-        List<Shift> GetShiftsForStaff(int staffId); // 追加
-        List<Shift> GetShiftsForStore(int storeId);
-    }
+    List<Shift> GetShifts();
+    Shift GetShiftById(int shiftId);
+    void DeleteShift(int shiftId);
+    List<Shift> GetShiftsForStaff(int staffId);
+    List<Shift> GetShiftsForStore(int storeId);
+
+    void SaveShift(Shift shift);
+    string ConnectionString { get; }
+    void SaveShiftList(List<Shift> shifts);
+    List<ShiftRequest> GetShiftRequestsByStoreId(int storeId);
+    void UpdateShiftRequest(ShiftRequest request);
 }

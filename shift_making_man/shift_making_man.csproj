@@ -65,7 +65,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controllers\AuthController.cs" />
-    <Compile Include="Controllers\ShiftSchedulerController.cs" />
+    <Compile Include="Controllers\ShiftServices\ShiftCreationService.cs" />
+    <Compile Include="Controllers\ShiftServices\ShiftModificationService.cs" />
+    <Compile Include="Controllers\ShiftServices\ShiftOptimizationService.cs" />
+    <Compile Include="Controllers\ShiftServices\ShiftSchedulerController.cs" />
+    <Compile Include="Controllers\ShiftServices\ShiftValidationService.cs" />
     <Compile Include="DataAccessFacade.cs" />
     <Compile Include="Data\Implementations\AdminDataAccess.cs" />
     <Compile Include="Data\Implementations\AttendanceDataAccess.cs" />
@@ -105,6 +109,12 @@
     <Compile Include="Views\MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Views\ProgressDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\ProgressDialog.Designer.cs">
+      <DependentUpon>ProgressDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="Views\ShiftListForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -126,6 +136,12 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="Views\LoginForm.resx">
+      <DependentUpon>LoginForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\ShiftSchedulerForm.resx">
+      <DependentUpon>ShiftSchedulerForm.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

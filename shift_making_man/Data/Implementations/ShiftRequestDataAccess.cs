@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using MySql.Data.MySqlClient;
 using shift_making_man.Models;
 
@@ -11,13 +12,98 @@ namespace shift_making_man.Data
 
         public List<ShiftRequest> GetShiftRequests()
         {
-            List<ShiftRequest> shiftRequests = new List<ShiftRequest>();
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            return ExecuteQuery("SELECT * FROM shiftrequests");
+        }
+
+        public ShiftRequest GetShiftRequestById(int requestId)
+        {
+            return ExecuteQuery($"SELECT * FROM shiftrequests WHERE RequestID = @RequestID", new MySqlParameter("@RequestID", requestId)).FirstOrDefault();
+        }
+
+        public void AddShiftRequest(ShiftRequest shiftRequest)
+        {
+            ExecuteNonQuery(
+                "INSERT INTO shiftrequests (StoreID, StaffID, OriginalShiftID, RequestDate, RequestedShiftDate, RequestedStartTime, RequestedEndTime, Status) VALUES (@StoreID, @StaffID, @OriginalShiftID, @RequestDate, @RequestedShiftDate, @RequestedStartTime, @RequestedEndTime, @Status)",
+                new MySqlParameter("@StoreID", shiftRequest.StoreID),
+                new MySqlParameter("@StaffID", shiftRequest.StaffID.HasValue ? (object)shiftRequest.StaffID.Value : DBNull.Value),
+                new MySqlParameter("@OriginalShiftID", shiftRequest.OriginalShiftID.HasValue ? (object)shiftRequest.OriginalShiftID.Value : DBNull.Value),
+                new MySqlParameter("@RequestDate", shiftRequest.RequestDate),
+                new MySqlParameter("@RequestedShiftDate", shiftRequest.RequestedShiftDate.HasValue ? (object)shiftRequest.RequestedShiftDate.Value : DBNull.Value),
+                new MySqlParameter("@RequestedStartTime", shiftRequest.RequestedStartTime.HasValue ? (object)shiftRequest.RequestedStartTime.Value : DBNull.Value),
+                new MySqlParameter("@RequestedEndTime", shiftRequest.RequestedEndTime.HasValue ? (object)shiftRequest.RequestedEndTime.Value : DBNull.Value),
+                new MySqlParameter("@Status", shiftRequest.Status));
+        }
+
+        public void UpdateShiftRequest(ShiftRequest shiftRequest)
+        {
+            ExecuteNonQuery(
+                "UPDATE shiftrequests SET StoreID = @StoreID, StaffID = @StaffID, OriginalShiftID = @OriginalShiftID, RequestDate = @RequestDate, RequestedShiftDate = @RequestedShiftDate, RequestedStartTime = @RequestedStartTime, RequestedEndTime = @RequestedEndTime, Status = @Status WHERE RequestID = @RequestID",
+                new MySqlParameter("@RequestID", shiftRequest.RequestID),
+                new MySqlParameter("@StoreID", shiftRequest.StoreID),
+                new MySqlParameter("@StaffID", shiftRequest.StaffID.HasValue ? (object)shiftRequest.StaffID.Value : DBNull.Value),
+                new MySqlParameter("@OriginalShiftID", shiftRequest.OriginalShiftID.HasValue ? (object)shiftRequest.OriginalShiftID.Value : DBNull.Value),
+                new MySqlParameter("@RequestDate", shiftRequest.RequestDate),
+                new MySqlParameter("@RequestedShiftDate", shiftRequest.RequestedShiftDate.HasValue ? (object)shiftRequest.RequestedShiftDate.Value : DBNull.Value),
+                new MySqlParameter("@RequestedStartTime", shiftRequest.RequestedStartTime.HasValue ? (object)shiftRequest.RequestedStartTime.Value : DBNull.Value),
+                new MySqlParameter("@RequestedEndTime", shiftRequest.RequestedEndTime.HasValue ? (object)shiftRequest.RequestedEndTime.Value : DBNull.Value),
+                new MySqlParameter("@Status", shiftRequest.Status));
+        }
+
+        public void DeleteShiftRequest(int requestId)
+        {
+            ExecuteNonQuery("DELETE FROM shiftrequests WHERE RequestID = @RequestID", new MySqlParameter("@RequestID", requestId));
+        }
+
+        public int GetPendingShiftRequestCount()
+        {
+            return GetCount("SELECT COUNT(*) FROM shiftrequests WHERE Status = @Status", new MySqlParameter("@Status", 0));
+        }
+
+        public int GetCountByOriginalShiftID(int? originalShiftID)
+        {
+            return GetCount("SELECT COUNT(*) FROM shiftrequests WHERE OriginalShiftID = @OriginalShiftID", new MySqlParameter("@OriginalShiftID", (object)originalShiftID ?? DBNull.Value));
+        }
+
+        public int GetCountByOriginalShiftIDNotNull()
+        {
+            return GetCount("SELECT COUNT(*) FROM shiftrequests WHERE OriginalShiftID IS NOT NULL");
+        }
+
+        public (int NewRequestCount, int ChangeRequestCount) GetPendingShiftRequestCounts()
+        {
+            using (var conn = new MySqlConnection(connectionString))
             {
                 conn.Open();
-                string sql = "SELECT * FROM shiftrequests";
-                MySqlCommand cmd = new MySqlCommand(sql, conn);
-                using (MySqlDataReader rdr = cmd.ExecuteReader())
+                string sql = "SELECT " +
+                             "(SELECT COUNT(*) FROM shiftrequests WHERE Status = @Status AND OriginalShiftID IS NULL) AS NewRequestCount, " +
+                             "(SELECT COUNT(*) FROM shiftrequests WHERE Status = @Status AND OriginalShiftID IS NOT NULL) AS ChangeRequestCount";
+                var cmd = new MySqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@Status", 0); // 0: 未処理のステータス
+                using (var rdr = cmd.ExecuteReader())
+                {
+                    if (rdr.Read())
+                    {
+                        return (rdr.GetInt32("NewRequestCount"), rdr.GetInt32("ChangeRequestCount"));
+                    }
+                }
+            }
+            return (0, 0);
+        }
+
+        public List<ShiftRequest> GetShiftRequestsByStoreId(int storeId)
+        {
+            return ExecuteQuery("SELECT * FROM shiftrequests WHERE StoreID = @StoreID", new MySqlParameter("@StoreID", storeId));
+        }
+
+        private List<ShiftRequest> ExecuteQuery(string sql, params MySqlParameter[] parameters)
+        {
+            var shiftRequests = new List<ShiftRequest>();
+            using (var conn = new MySqlConnection(connectionString))
+            {
+                conn.Open();
+                var cmd = new MySqlCommand(sql, conn);
+                cmd.Parameters.AddRange(parameters);
+                using (var rdr = cmd.ExecuteReader())
                 {
                     while (rdr.Read())
                     {
@@ -39,86 +125,31 @@ namespace shift_making_man.Data
             return shiftRequests;
         }
 
-        public ShiftRequest GetShiftRequestById(int requestId)
+        private void ExecuteNonQuery(string sql, params MySqlParameter[] parameters)
         {
-            ShiftRequest shiftRequest = null;
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            using (var conn = new MySqlConnection(connectionString))
             {
                 conn.Open();
-                string sql = "SELECT * FROM shiftrequests WHERE RequestID = @RequestID";
-                MySqlCommand cmd = new MySqlCommand(sql, conn);
-                cmd.Parameters.AddWithValue("@RequestID", requestId);
-                using (MySqlDataReader rdr = cmd.ExecuteReader())
-                {
-                    if (rdr.Read())
-                    {
-                        shiftRequest = new ShiftRequest
-                        {
-                            RequestID = rdr.GetInt32("RequestID"),
-                            StoreID = rdr.GetInt32("StoreID"),
-                            StaffID = rdr.IsDBNull(rdr.GetOrdinal("StaffID")) ? (int?)null : rdr.GetInt32("StaffID"),
-                            OriginalShiftID = rdr.IsDBNull(rdr.GetOrdinal("OriginalShiftID")) ? (int?)null : rdr.GetInt32("OriginalShiftID"),
-                            RequestDate = rdr.GetDateTime("RequestDate"),
-                            Status = rdr.GetInt32("Status"),
-                            RequestedShiftDate = rdr.IsDBNull(rdr.GetOrdinal("RequestedShiftDate")) ? (DateTime?)null : rdr.GetDateTime("RequestedShiftDate"),
-                            RequestedStartTime = rdr.IsDBNull(rdr.GetOrdinal("RequestedStartTime")) ? (TimeSpan?)null : rdr.GetTimeSpan("RequestedStartTime"),
-                            RequestedEndTime = rdr.IsDBNull(rdr.GetOrdinal("RequestedEndTime")) ? (TimeSpan?)null : rdr.GetTimeSpan("RequestedEndTime")
-                        };
-                    }
-                }
-            }
-            return shiftRequest;
-        }
-
-        public void AddShiftRequest(ShiftRequest shiftRequest)
-        {
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
-            {
-                conn.Open();
-                string sql = "INSERT INTO shiftrequests (StoreID, StaffID, OriginalShiftID, RequestDate, RequestedShiftDate, RequestedStartTime, RequestedEndTime, Status) VALUES (@StoreID, @StaffID, @OriginalShiftID, @RequestDate, @RequestedShiftDate, @RequestedStartTime, @RequestedEndTime, @Status)";
-                MySqlCommand cmd = new MySqlCommand(sql, conn);
-                cmd.Parameters.AddWithValue("@StoreID", shiftRequest.StoreID);
-                cmd.Parameters.AddWithValue("@StaffID", shiftRequest.StaffID.HasValue ? (object)shiftRequest.StaffID.Value : DBNull.Value);
-                cmd.Parameters.AddWithValue("@OriginalShiftID", shiftRequest.OriginalShiftID.HasValue ? (object)shiftRequest.OriginalShiftID.Value : DBNull.Value);
-                cmd.Parameters.AddWithValue("@RequestDate", shiftRequest.RequestDate);
-                cmd.Parameters.AddWithValue("@RequestedShiftDate", shiftRequest.RequestedShiftDate.HasValue ? (object)shiftRequest.RequestedShiftDate.Value : DBNull.Value);
-                cmd.Parameters.AddWithValue("@RequestedStartTime", shiftRequest.RequestedStartTime.HasValue ? (object)shiftRequest.RequestedStartTime.Value : DBNull.Value);
-                cmd.Parameters.AddWithValue("@RequestedEndTime", shiftRequest.RequestedEndTime.HasValue ? (object)shiftRequest.RequestedEndTime.Value : DBNull.Value);
-                cmd.Parameters.AddWithValue("@Status", shiftRequest.Status);
+                var cmd = new MySqlCommand(sql, conn);
+                cmd.Parameters.AddRange(parameters);
                 cmd.ExecuteNonQuery();
             }
         }
 
-        public void UpdateShiftRequest(ShiftRequest shiftRequest)
+        private int GetCount(string sql, params MySqlParameter[] parameters)
         {
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            using (var conn = new MySqlConnection(connectionString))
             {
                 conn.Open();
-                string sql = "UPDATE shiftrequests SET StoreID = @StoreID, StaffID = @StaffID, OriginalShiftID = @OriginalShiftID, RequestDate = @RequestDate, RequestedShiftDate = @RequestedShiftDate, RequestedStartTime = @RequestedStartTime, RequestedEndTime = @RequestedEndTime, Status = @Status WHERE RequestID = @RequestID";
-                MySqlCommand cmd = new MySqlCommand(sql, conn);
-                cmd.Parameters.AddWithValue("@RequestID", shiftRequest.RequestID);
-                cmd.Parameters.AddWithValue("@StoreID", shiftRequest.StoreID);
-                cmd.Parameters.AddWithValue("@StaffID", shiftRequest.StaffID.HasValue ? (object)shiftRequest.StaffID.Value : DBNull.Value);
-                cmd.Parameters.AddWithValue("@OriginalShiftID", shiftRequest.OriginalShiftID.HasValue ? (object)shiftRequest.OriginalShiftID.Value : DBNull.Value);
-                cmd.Parameters.AddWithValue("@RequestDate", shiftRequest.RequestDate);
-                cmd.Parameters.AddWithValue("@RequestedShiftDate", shiftRequest.RequestedShiftDate.HasValue ? (object)shiftRequest.RequestedShiftDate.Value : DBNull.Value);
-                cmd.Parameters.AddWithValue("@RequestedStartTime", shiftRequest.RequestedStartTime.HasValue ? (object)shiftRequest.RequestedStartTime.Value : DBNull.Value);
-                cmd.Parameters.AddWithValue("@RequestedEndTime", shiftRequest.RequestedEndTime.HasValue ? (object)shiftRequest.RequestedEndTime.Value : DBNull.Value);
-                cmd.Parameters.AddWithValue("@Status", shiftRequest.Status);
-                cmd.ExecuteNonQuery();
+                var cmd = new MySqlCommand(sql, conn);
+                cmd.Parameters.AddRange(parameters);
+                return Convert.ToInt32(cmd.ExecuteScalar());
             }
+        }
+        public List<ShiftRequest> GetPendingRequests()
+        {
+            return ExecuteQuery("SELECT * FROM shiftrequests WHERE Status = @Status", new MySqlParameter("@Status", 0));
         }
 
-        public void DeleteShiftRequest(int requestId)
-        {
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
-            {
-                conn.Open();
-                string sql = "DELETE FROM shiftrequests WHERE RequestID = @RequestID";
-                MySqlCommand cmd = new MySqlCommand(sql, conn);
-                cmd.Parameters.AddWithValue("@RequestID", requestId);
-                cmd.ExecuteNonQuery();
-            }
-        }
     }
 }

@@ -1,8 +1,8 @@
-﻿using System;
+﻿using shift_making_man.Controllers;
+using shift_making_man.Models;
 using System.Collections.Generic;
 using System.Windows.Forms;
-using shift_making_man.Controllers;
-using shift_making_man.Models;
+using System;
 
 namespace shift_making_man.Views
 {
@@ -10,67 +10,62 @@ namespace shift_making_man.Views
     {
         private readonly ShiftSchedulerController _controller;
 
-        public ShiftSchedulerForm(ShiftSchedulerController controller)
+        public ShiftSchedulerForm(ShiftSchedulerController schedulerController)
         {
             InitializeComponent();
-            _controller = controller;
+            _controller = schedulerController;
             LoadStores();
-            btnCreateShifts.Click += OnCreateShiftsButtonClick;
         }
 
         private void LoadStores()
         {
-            try
-            {
-                List<Store> stores = _controller.GetStores();
-                cmbStore.DataSource = stores;
-                cmbStore.DisplayMember = "StoreName";
-                cmbStore.ValueMember = "StoreID";
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"ストアの読み込み中にエラーが発生しました: {ex.Message}", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            var stores = _controller.GetStores();
+            cmbStore.DataSource = stores;
+            cmbStore.DisplayMember = "StoreName";
+            cmbStore.ValueMember = "StoreID";
         }
 
         private void OnCreateShiftsButtonClick(object sender, EventArgs e)
         {
-            if (cmbStore.SelectedItem is Store selectedStore)
-            {
-                List<string> errors;
-                CreateShifts(dtpStartDate.Value, dtpEndDate.Value, selectedStore.StoreID, out errors);
+            // 店舗IDを取得
+            int storeId = (int)cmbStore.SelectedValue;
 
-                // エラーがあれば表示
-                if (errors.Count > 0)
-                {
-                    MessageBox.Show(string.Join(Environment.NewLine, errors), "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
-            else
+            // DateTimePicker から選択された日時を取得し、時間部分をクリアする
+            DateTime startDate = dtpStartDate.Value.Date; 
+            DateTime endDate = dtpEndDate.Value.Date;     
+
+            // シフト作成メソッドを呼び出し
+            List<string> errors;
+            List<Shift> shifts = _controller.CreateShifts(storeId, startDate, endDate, out errors);
+
+            // DataGridView にシフトを表示
+            dgvShifts.Rows.Clear();
+            foreach (var shift in shifts)
             {
-                MessageBox.Show("ストアが選択されていません。", "警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                dgvShifts.Rows.Add(shift.ShiftDate, shift.StartTime, shift.EndTime, shift.Staff?.FullName ?? "スタッフ未設定");
+            }
+
+            // エラーを表示
+            foreach (var error in errors)
+            {
+                MessageBox.Show(error, "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+            // シフト作成完了のメッセージ
+            if (shifts.Count > 0)
+            {
+                MessageBox.Show("シフトが作成されました。");
             }
         }
 
-        private void CreateShifts(DateTime startDate, DateTime endDate, int storeId, out List<string> errors)
+
+        private void OnModifyShiftsButtonClick(object sender, EventArgs e)
         {
-            errors = new List<string>();
-            try
-            {
-                var shifts = _controller.CreateShifts(startDate, endDate, out errors);
-                dgvShifts.Rows.Clear();
-                foreach (var shift in shifts)
-                {
-                    if (shift.StoreID == storeId)
-                    {
-                        dgvShifts.Rows.Add(shift.StoreID, shift.StaffID, shift.ShiftDate.ToShortDateString(), shift.StartTime.ToString(@"hh\:mm"), shift.EndTime.ToString(@"hh\:mm"), shift.Status);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"シフト作成中にエラーが発生しました: {ex.Message}", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            int storeId = (int)cmbStore.SelectedValue;
+            DateTime startDate = dtpStartDate.Value;
+            DateTime endDate = dtpEndDate.Value;
+
+            MessageBox.Show("シフト修正リクエストが処理されました。");
         }
     }
 }

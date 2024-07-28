@@ -2,7 +2,6 @@
 {
     partial class LoginForm
     {
-        private System.Windows.Forms.Button btnCreateAdminAccount;
 
         private System.ComponentModel.IContainer components = null;
 
@@ -22,15 +21,13 @@
             this.lblUsername = new System.Windows.Forms.Label();
             this.lblPassword = new System.Windows.Forms.Label();
             this.btnLogin = new System.Windows.Forms.Button();
-            this.btnCreateAdminAccount = new System.Windows.Forms.Button();
-
             this.SuspendLayout();
             // 
             // txtUsername
             // 
             this.txtUsername.Location = new System.Drawing.Point(108, 35);
             this.txtUsername.Name = "txtUsername";
-            this.txtUsername.Size = new System.Drawing.Size(200, 20);
+            this.txtUsername.Size = new System.Drawing.Size(200, 22);
             this.txtUsername.TabIndex = 0;
             // 
             // txtPassword
@@ -38,7 +35,7 @@
             this.txtPassword.Location = new System.Drawing.Point(108, 75);
             this.txtPassword.Name = "txtPassword";
             this.txtPassword.PasswordChar = '*';
-            this.txtPassword.Size = new System.Drawing.Size(200, 20);
+            this.txtPassword.Size = new System.Drawing.Size(200, 22);
             this.txtPassword.TabIndex = 1;
             // 
             // lblUsername
@@ -46,7 +43,7 @@
             this.lblUsername.AutoSize = true;
             this.lblUsername.Location = new System.Drawing.Point(30, 35);
             this.lblUsername.Name = "lblUsername";
-            this.lblUsername.Size = new System.Drawing.Size(58, 13);
+            this.lblUsername.Size = new System.Drawing.Size(70, 15);
             this.lblUsername.TabIndex = 2;
             this.lblUsername.Text = "ユーザー名";
             // 
@@ -55,7 +52,7 @@
             this.lblPassword.AutoSize = true;
             this.lblPassword.Location = new System.Drawing.Point(30, 75);
             this.lblPassword.Name = "lblPassword";
-            this.lblPassword.Size = new System.Drawing.Size(52, 13);
+            this.lblPassword.Size = new System.Drawing.Size(64, 15);
             this.lblPassword.TabIndex = 3;
             this.lblPassword.Text = "パスワード";
             // 
@@ -69,20 +66,9 @@
             this.btnLogin.UseVisualStyleBackColor = true;
             this.btnLogin.Click += new System.EventHandler(this.btnLogin_Click);
             // 
-            // btnCreateAdminAccount
-            // 
-            this.btnCreateAdminAccount.Location = new System.Drawing.Point(200, 115);
-            this.btnCreateAdminAccount.Name = "btnCreateAdminAccount";
-            this.btnCreateAdminAccount.Size = new System.Drawing.Size(100, 23);
-            this.btnCreateAdminAccount.TabIndex = 5;
-            this.btnCreateAdminAccount.Text = "アカウント作成";
-            this.btnCreateAdminAccount.UseVisualStyleBackColor = true;
-            this.btnCreateAdminAccount.Click += new System.EventHandler(this.btnCreateAdminAccount_Click);
-            // 
             // LoginForm
             // 
             this.ClientSize = new System.Drawing.Size(354, 161);
-            this.Controls.Add(this.btnCreateAdminAccount);
             this.Controls.Add(this.btnLogin);
             this.Controls.Add(this.lblPassword);
             this.Controls.Add(this.lblUsername);
@@ -92,6 +78,7 @@
             this.Text = "ログイン";
             this.ResumeLayout(false);
             this.PerformLayout();
+
         }
 
         private System.Windows.Forms.TextBox txtUsername;
