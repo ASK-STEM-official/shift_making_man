@@ -33,148 +33,162 @@ namespace shift_making_man.Controllers.ShiftServices
 
         public List<Shift> CreateShifts(int storeId, DateTime startDate, DateTime endDate, out List<string> errors)
         {
-            Console.WriteLine($"店舗ID: {storeId} のシフト作成開始 (期間: {startDate:yyyy-MM-dd} から {endDate:yyyy-MM-dd})");
-
-            var store = _storeDataAccess.GetStoreById(storeId);
-            var openTime = _storeDataAccess.GetStoreOpenTime(storeId);
-            var closeTime = _storeDataAccess.GetStoreCloseTime(storeId);
-            var staffList = _staffDataAccess.GetStaffByStoreId(storeId);
-            var shiftRequests = _shiftRequestDataAccess.GetShiftRequestsByStoreId(storeId)
-                .Where(r => r.Status == 0 && !r.OriginalShiftID.HasValue)
-                .ToList();
-
-            Console.WriteLine("シフトリクエスト:");
-            foreach (var request in shiftRequests)
-            {
-                Console.WriteLine($"リクエストID: {request.RequestID}, スタッフID: {request.StaffID}, 日付: {request.RequestedShiftDate:yyyy-MM-dd}, 開始: {request.RequestedStartTime}, 終了: {request.RequestedEndTime}");
-            }
-
             errors = new List<string>();
-            var shifts = new List<Shift>();
-            var currentDate = startDate;
-
-            while (currentDate <= endDate)
+            try
             {
-                Console.WriteLine($"日付: {currentDate:yyyy-MM-dd} のシフト作成開始");
-                var dailyShifts = CreateDailyShifts(store, openTime, closeTime, currentDate, staffList, shiftRequests, out var dailyErrors);
-                shifts.AddRange(dailyShifts);
-                errors.AddRange(dailyErrors);
+                Console.WriteLine($"店舗ID: {storeId} のシフト作成開始 (期間: {startDate:yyyy-MM-dd} から {endDate:yyyy-MM-dd})");
 
-                currentDate = currentDate.AddDays(1);
-            }
-
-            var validationErrors = _validationService.GetShiftIssues(shifts);
-            errors.AddRange(validationErrors);
-
-            Console.WriteLine("シフト最適化開始");
-            shifts = _optimizationService.SimulatedAnnealingOptimize(shifts);
-
-            foreach (var request in shiftRequests)
-            {
-                request.Status = 1;
-                _shiftRequestDataAccess.UpdateShiftRequest(request);
-            }
-
-            Console.WriteLine("シフト作成完了:");
-            foreach (var shift in shifts)
-            {
-                shift.Status = 0; // シフトステータスを0に設定
-                _shiftDataAccess.SaveShift(shift); // シフトをデータベースに保存
-                Console.WriteLine($"シフトID: {shift.ShiftID}, 店舗ID: {shift.StoreID}, スタッフID: {shift.StaffID}, 日付: {shift.ShiftDate:yyyy-MM-dd}, 開始: {shift.StartTime}, 終了: {shift.EndTime}");
-            }
-
-            return shifts;
-        }
-
-        private List<Shift> CreateDailyShifts(Store store, TimeSpan openTime, TimeSpan closeTime, DateTime date, List<Staff> staffList, List<ShiftRequest> shiftRequests, out List<string> errors)
-        {
-            errors = new List<string>();
-            var shifts = new List<Shift>();
-
-            Console.WriteLine($"日付: {date:yyyy-MM-dd} のシフト作成");
-
-            var busyShiftCount = store.BusyStaffCount;
-            var busyShifts = CreateShiftsForPeriod(store, openTime, closeTime, date, store.BusyTimeStart, store.BusyTimeEnd, staffList, shiftRequests, busyShiftCount, out var busyErrors);
-            shifts.AddRange(busyShifts);
-            errors.AddRange(busyErrors);
-
-            var normalShiftCount = store.NormalStaffCount;
-            var normalShifts = CreateShiftsForPeriod(store, openTime, closeTime, date, openTime, closeTime, staffList, shiftRequests, normalShiftCount, out var normalErrors);
-            shifts.AddRange(normalShifts);
-            errors.AddRange(normalErrors);
-
-            return shifts;
-        }
-
-        private List<Shift> CreateShiftsForPeriod(Store store, TimeSpan openTime, TimeSpan closeTime, DateTime date, TimeSpan startTime, TimeSpan endTime, List<Staff> staffList, List<ShiftRequest> shiftRequests, int shiftCount, out List<string> errors)
-        {
-            errors = new List<string>();
-            var shifts = new List<Shift>();
-
-            Console.WriteLine($"期間: {date:yyyy-MM-dd}, 開始: {startTime}, 終了: {endTime} のシフト作成");
-
-            // 店舗の開店時間と閉店時間を超えないようにする
-            if (startTime < openTime)
-                startTime = openTime;
-            if (endTime > closeTime)
-                endTime = closeTime;
-
-            // 1時間ごとにシフトを作成
-            for (var currentTime = startTime; currentTime < endTime; currentTime = currentTime.Add(TimeSpan.FromHours(1)))
-            {
-                var shiftEndTime = currentTime.Add(TimeSpan.FromHours(1));
-                if (shiftEndTime > endTime)
-                    shiftEndTime = endTime;
-
-                var requestsInPeriod = shiftRequests
-                    .Where(r => r.RequestedShiftDate == date && r.RequestedStartTime >= currentTime && r.RequestedEndTime <= shiftEndTime)
+                var store = _storeDataAccess.GetStoreById(storeId);
+                var staffList = _staffDataAccess.GetStaffByStoreId(storeId);
+                var shiftRequests = _shiftRequestDataAccess.GetShiftRequestsByStoreId(storeId)
+                    .Where(r => r.Status == 0 && !r.OriginalShiftID.HasValue)
                     .ToList();
 
-                if (requestsInPeriod.Count == 0)
+                var shifts = new List<Shift>();
+                var currentDate = startDate;
+
+                // スタッフのシフト割り当て回数を記録
+                var staffShiftCounts = staffList.ToDictionary(staff => staff.StaffID, staff => 0);
+
+                while (currentDate <= endDate)
                 {
-                    errors.Add($"リクエストがありません (日付: {date:yyyy-MM-dd}, 開始: {currentTime}, 終了: {shiftEndTime})");
+                    var dailyShifts = CreateDailyShifts(store, currentDate, staffList, shiftRequests, staffShiftCounts, out var dailyErrors);
+                    shifts.AddRange(dailyShifts);
+                    errors.AddRange(dailyErrors);
+
+                    currentDate = currentDate.AddDays(1);
                 }
 
-                for (int i = 0; i < shiftCount; i++)
-                {
-                    var staff = GetAvailableStaff(staffList, requestsInPeriod, date, currentTime, shiftEndTime);
-                    if (staff == null)
-                    {
-                        errors.Add($"スタッフ不足 (日付: {date:yyyy-MM-dd}, 開始: {currentTime}, 終了: {shiftEndTime})");
-                    }
+                var validationErrors = _validationService.GetShiftIssues(shifts);
+                errors.AddRange(validationErrors);
 
+                Console.WriteLine("シフト最適化開始");
+                shifts = _optimizationService.SimulatedAnnealingOptimize(shifts);
+
+                // 使用されたシフトリクエストのステータスを更新
+                foreach (var request in shiftRequests)
+                {
+                    if (shifts.Any(s => s.StaffID == request.StaffID && s.ShiftDate == request.RequestDate && s.StartTime == request.RequestedStartTime && s.EndTime == request.RequestedEndTime))
+                    {
+                        request.Status = 1;
+                    }
+                    else
+                    {
+                        request.Status = 2;
+                    }
+                    _shiftRequestDataAccess.UpdateShiftRequest(request);
+                }
+
+                foreach (var shift in shifts)
+                {
+                    try
+                    {
+                        shift.Status = 0;
+                        _shiftDataAccess.SaveShift(shift);
+                    }
+                    catch (Exception ex)
+                    {
+                        errors.Add($"シフトの保存中にエラーが発生しました: {ex.Message}");
+                    }
+                }
+
+                if (errors.Count > 0)
+                {
+                    Console.WriteLine("エラー一覧:");
+                    foreach (var error in errors)
+                    {
+                        Console.WriteLine(error);
+                    }
+                }
+
+                return shifts;
+            }
+            catch (Exception ex)
+            {
+                errors.Add($"シフト作成中にエラーが発生しました: {ex.Message}");
+                return new List<Shift>();
+            }
+        }
+
+        private List<Shift> CreateDailyShifts(Store store, DateTime date, List<Staff> staffList, List<ShiftRequest> shiftRequests, Dictionary<int, int> staffShiftCounts, out List<string> errors)
+        {
+            errors = new List<string>();
+            var shifts = new List<Shift>();
+
+            try
+            {
+                var busyShiftCount = store.BusyStaffCount;
+                var normalShiftCount = store.NormalStaffCount;
+                var openTime = store.OpenTime;
+                var closeTime = store.CloseTime;
+                var busyTimeStart = store.BusyTimeStart;
+                var busyTimeEnd = store.BusyTimeEnd;
+
+                // ステータスが0のシフトリクエストのみを対象とする
+                var validShiftRequests = shiftRequests.Where(r => r.Status == 0).ToList();
+
+                for (var hour = openTime.Hours; hour < closeTime.Hours; hour++)
+                {
+                    var currentStartTime = new TimeSpan(hour, 0, 0);
+                    var currentEndTime = new TimeSpan(hour + 1, 0, 0);
+
+                    var shiftCount = (currentStartTime < busyTimeEnd && currentEndTime > busyTimeStart) ? busyShiftCount : normalShiftCount;
+                    var hourlyShifts = CreateShiftsForHour(store, date, currentStartTime, currentEndTime, staffList, validShiftRequests, shiftCount, staffShiftCounts, out var hourErrors);
+
+                    shifts.AddRange(hourlyShifts);
+                    errors.AddRange(hourErrors);
+                }
+            }
+            catch (Exception ex)
+            {
+                errors.Add($"日次シフト作成中にエラーが発生しました: {ex.Message}");
+            }
+
+            return shifts;
+        }
+
+        private List<Shift> CreateShiftsForHour(Store store, DateTime date, TimeSpan startTime, TimeSpan endTime, List<Staff> staffList, List<ShiftRequest> shiftRequests, int shiftCount, Dictionary<int, int> staffShiftCounts, out List<string> errors)
+        {
+            errors = new List<string>();
+            var shifts = new List<Shift>();
+
+            try
+            {
+                var availableStaff = staffList
+                    .OrderBy(staff => staffShiftCounts[staff.StaffID])
+                    .ToList();
+
+                var staffIndex = 0;
+
+                while (shifts.Count < shiftCount && staffIndex < availableStaff.Count)
+                {
+                    var staff = availableStaff[staffIndex];
                     var shift = new Shift
                     {
                         StoreID = store.StoreID,
+                        StaffID = staff.StaffID,
                         ShiftDate = date,
-                        StartTime = currentTime,
-                        EndTime = shiftEndTime,
-                        StaffID = staff?.StaffID
+                        StartTime = startTime,
+                        EndTime = endTime,
+                        Status = 0
                     };
 
-                    Console.WriteLine($"シフト作成 - 店舗ID: {store.StoreID}, 日付: {date:yyyy-MM-dd}, スタッフID: {staff?.StaffID ?? 0}, 開始: {currentTime}, 終了: {shiftEndTime}");
-
                     shifts.Add(shift);
+                    staffShiftCounts[staff.StaffID]++;
+                    staffIndex++;
+                }
+
+                if (shifts.Count < shiftCount)
+                {
+                    errors.Add($"必要なシフト数を作成できませんでした (日付: {date:yyyy-MM-dd}, 作成済みシフト数: {shifts.Count}, 必要シフト数: {shiftCount})");
                 }
             }
-
-            Console.WriteLine($"期間: {date:yyyy-MM-dd}, 開始: {startTime}, 終了: {endTime} のシフト数: {shifts.Count}");
+            catch (Exception ex)
+            {
+                errors.Add($"期間シフト作成中にエラーが発生しました: {ex.Message}");
+            }
 
             return shifts;
-        }
-
-        private Staff GetAvailableStaff(List<Staff> staffList, List<ShiftRequest> requestsInPeriod, DateTime date, TimeSpan startTime, TimeSpan endTime)
-        {
-            foreach (var request in requestsInPeriod)
-            {
-                var staff = staffList.FirstOrDefault(s => s.StaffID == request.StaffID);
-                if (staff != null)
-                {
-                    staffList.Remove(staff);
-                    return staff;
-                }
-            }
-            return null;
         }
     }
 }

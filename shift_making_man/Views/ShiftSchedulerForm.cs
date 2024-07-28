@@ -45,12 +45,6 @@ namespace shift_making_man.Views
                 dgvShifts.Rows.Add(shift.ShiftDate, shift.StartTime, shift.EndTime, shift.Staff?.FullName ?? "スタッフ未設定");
             }
 
-            // エラーを表示
-            foreach (var error in errors)
-            {
-                MessageBox.Show(error, "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-
             // シフト作成完了のメッセージ
             if (shifts.Count > 0)
             {

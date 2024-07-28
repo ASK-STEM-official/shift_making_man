@@ -1,6 +1,6 @@
-﻿using System;
+﻿using shift_making_man.Models;
 using System.Collections.Generic;
-using shift_making_man.Models;
+using System;
 
 namespace shift_making_man.Data
 {
@@ -13,6 +13,7 @@ namespace shift_making_man.Data
         void DeleteStaff(int staffId);
 
         bool IsFullTimeAvailable(DateTime shiftDate, TimeSpan startTime, TimeSpan endTime);
-        List<Staff> GetStaffByStoreId(int storeId); 
+        List<Staff> GetStaffByStoreId(int storeId);
+        List<Staff> GetStaffByEmploymentType(string employmentType); // 追加
     }
 }

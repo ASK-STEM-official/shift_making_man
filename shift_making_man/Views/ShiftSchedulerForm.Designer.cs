@@ -48,7 +48,7 @@
             this.ColumnStartTime,
             this.ColumnEndTime,
             this.ColumnStaffName});
-            this.dgvShifts.Location = new System.Drawing.Point(20, 320);
+            this.dgvShifts.Location = new System.Drawing.Point(12, 223);
             this.dgvShifts.Name = "dgvShifts";
             this.dgvShifts.RowHeadersWidth = 51;
             this.dgvShifts.RowTemplate.Height = 25;
@@ -85,7 +85,7 @@
             // 
             // btnCreateShifts
             // 
-            this.btnCreateShifts.Location = new System.Drawing.Point(150, 190);
+            this.btnCreateShifts.Location = new System.Drawing.Point(103, 123);
             this.btnCreateShifts.Name = "btnCreateShifts";
             this.btnCreateShifts.Size = new System.Drawing.Size(200, 30);
             this.btnCreateShifts.TabIndex = 3;
@@ -95,7 +95,7 @@
             // 
             // btnModifyShifts
             // 
-            this.btnModifyShifts.Location = new System.Drawing.Point(150, 230);
+            this.btnModifyShifts.Location = new System.Drawing.Point(103, 159);
             this.btnModifyShifts.Name = "btnModifyShifts";
             this.btnModifyShifts.Size = new System.Drawing.Size(200, 30);
             this.btnModifyShifts.TabIndex = 4;
@@ -105,14 +105,14 @@
             // 
             // dtpStartDate
             // 
-            this.dtpStartDate.Location = new System.Drawing.Point(150, 110);
+            this.dtpStartDate.Location = new System.Drawing.Point(103, 53);
             this.dtpStartDate.Name = "dtpStartDate";
             this.dtpStartDate.Size = new System.Drawing.Size(200, 22);
             this.dtpStartDate.TabIndex = 5;
             // 
             // dtpEndDate
             // 
-            this.dtpEndDate.Location = new System.Drawing.Point(150, 150);
+            this.dtpEndDate.Location = new System.Drawing.Point(103, 85);
             this.dtpEndDate.Name = "dtpEndDate";
             this.dtpEndDate.Size = new System.Drawing.Size(200, 22);
             this.dtpEndDate.TabIndex = 6;
@@ -129,7 +129,7 @@
             // lblStartDate
             // 
             this.lblStartDate.AutoSize = true;
-            this.lblStartDate.Location = new System.Drawing.Point(70, 113);
+            this.lblStartDate.Location = new System.Drawing.Point(22, 59);
             this.lblStartDate.Name = "lblStartDate";
             this.lblStartDate.Size = new System.Drawing.Size(75, 15);
             this.lblStartDate.TabIndex = 8;
@@ -138,7 +138,7 @@
             // lblEndDate
             // 
             this.lblEndDate.AutoSize = true;
-            this.lblEndDate.Location = new System.Drawing.Point(70, 153);
+            this.lblEndDate.Location = new System.Drawing.Point(22, 91);
             this.lblEndDate.Name = "lblEndDate";
             this.lblEndDate.Size = new System.Drawing.Size(75, 15);
             this.lblEndDate.TabIndex = 9;
@@ -148,7 +148,7 @@
             // 
             this.lblShifts.AutoSize = true;
             this.lblShifts.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold);
-            this.lblShifts.Location = new System.Drawing.Point(20, 295);
+            this.lblShifts.Location = new System.Drawing.Point(-3, 192);
             this.lblShifts.Name = "lblShifts";
             this.lblShifts.Size = new System.Drawing.Size(152, 28);
             this.lblShifts.TabIndex = 10;
@@ -156,7 +156,7 @@
             // 
             // ShiftSchedulerForm
             // 
-            this.ClientSize = new System.Drawing.Size(800, 500);
+            this.ClientSize = new System.Drawing.Size(780, 385);
             this.Controls.Add(this.lblShifts);
             this.Controls.Add(this.lblEndDate);
             this.Controls.Add(this.lblStartDate);

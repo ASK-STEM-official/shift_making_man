@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Windows.Forms;
 using shift_making_man.Models;
@@ -31,17 +32,21 @@ namespace shift_making_man.Views
 
         private void LoadShiftsByDate(DateTime date)
         {
-            List<Shift> shifts = dataAccessFacade.ShiftDataAccess.GetShifts().Where(s => s.ShiftDate.Date == date.Date).ToList();
+            List<Shift> shifts = dataAccessFacade.ShiftDataAccess.GetShifts()
+                                        .Where(s => s.ShiftDate.Date == date.Date)
+                                        .ToList();
 
             var staffIds = shifts.Select(s => s.StaffID).Distinct().ToList();
-            var staffs = dataAccessFacade.StaffDataAccess.GetStaff().Where(s => staffIds.Contains(s.StaffID)).ToList();
+            var staffs = dataAccessFacade.StaffDataAccess.GetStaff()
+                                    .Where(s => staffIds.Contains(s.StaffID))
+                                    .ToList();
 
-            var dataTable = new System.Data.DataTable();
-            dataTable.Columns.Add("Staff Name");
+            var dataTable = new DataTable();
+            dataTable.Columns.Add("Staff Name", typeof(string));
 
             for (int hour = 0; hour < 24; hour++)
             {
-                dataTable.Columns.Add(hour.ToString("00") + ":00");
+                dataTable.Columns.Add(hour.ToString("00") + ":00", typeof(string));
             }
 
             foreach (var staff in staffs)

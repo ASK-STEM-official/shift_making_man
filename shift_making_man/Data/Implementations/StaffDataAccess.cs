@@ -162,7 +162,7 @@ public class StaffDataAccess : IStaffDataAccess
                 FROM staff s
                 JOIN shiftrequests sr ON s.StaffID = sr.StaffID
                 WHERE sr.StoreID = @StoreID
-                GROUP BY s.StaffID"; 
+                GROUP BY s.StaffID";
             using (var cmd = new MySqlCommand(sql, conn))
             {
                 cmd.Parameters.AddWithValue("@StoreID", storeId);
@@ -183,8 +183,37 @@ public class StaffDataAccess : IStaffDataAccess
                     }
                 }
             }
+        }
+        return staffs;
+    }
 
-
+    public List<Staff> GetStaffByEmploymentType(string employmentType)
+    {
+        var staffs = new List<Staff>();
+        using (var conn = new MySqlConnection(connectionString))
+        {
+            conn.Open();
+            var sql = "SELECT * FROM staff WHERE EmploymentType = @EmploymentType";
+            using (var cmd = new MySqlCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@EmploymentType", employmentType);
+                using (var rdr = cmd.ExecuteReader())
+                {
+                    while (rdr.Read())
+                    {
+                        staffs.Add(new Staff
+                        {
+                            StaffID = rdr.GetInt32("StaffID"),
+                            Username = rdr.GetString("Username"),
+                            PasswordHash = rdr.GetString("PasswordHash"),
+                            FullName = rdr.GetString("FullName"),
+                            Email = rdr.GetString("Email"),
+                            PhoneNumber = rdr.IsDBNull(rdr.GetOrdinal("PhoneNumber")) ? null : rdr.GetString("PhoneNumber"),
+                            EmploymentType = rdr.IsDBNull(rdr.GetOrdinal("EmploymentType")) ? null : rdr.GetString("EmploymentType")
+                        });
+                    }
+                }
+            }
         }
         return staffs;
     }
