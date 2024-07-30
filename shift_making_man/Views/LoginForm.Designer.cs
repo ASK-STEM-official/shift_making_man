@@ -1,4 +1,5 @@
-﻿namespace shift_making_man.Views
+﻿//
+namespace shift_making_man.Views
 {
     partial class LoginForm
     {

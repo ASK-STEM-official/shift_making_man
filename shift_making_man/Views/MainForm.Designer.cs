@@ -131,7 +131,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewStaff)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewStores)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewAdmins)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewShiftRequests)).EndInit(); // 新しいDataGridViewの初期化
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewShiftRequests)).EndInit(); 
             this.ResumeLayout(false);
         }
 
@@ -143,6 +143,6 @@
         private System.Windows.Forms.DataGridView dataGridViewStaff;
         private System.Windows.Forms.DataGridView dataGridViewStores;
         private System.Windows.Forms.DataGridView dataGridViewAdmins;
-        private System.Windows.Forms.DataGridView dataGridViewShiftRequests; // 新しいDataGridViewのフィールド
+        private System.Windows.Forms.DataGridView dataGridViewShiftRequests; 
     }
 }

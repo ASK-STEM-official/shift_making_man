@@ -1,4 +1,5 @@
-﻿using System;
+﻿//
+using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using shift_making_man.Controllers;
@@ -22,8 +23,8 @@ namespace shift_making_man.Views
             LoadShifts();
             LoadStaff();
             LoadStores();
-            LoadAdmins();
-            LoadShiftRequests(); // 追加
+            LoadAttendance();
+            LoadShiftRequests();
         }
 
         private void btnOpenDashboard_Click(object sender, EventArgs e)
@@ -70,9 +71,9 @@ namespace shift_making_man.Views
             dataGridViewStores.DataSource = stores;
         }
 
-        private void LoadAdmins()
+        private void LoadAttendance()
         {
-            List<Admin> admins = dataAccessFacade.AdminDataAccess.GetAdmins();
+            List<Attendance> admins = dataAccessFacade.AttendanceDataAccess.GetAttendances();
             dataGridViewAdmins.DataSource = admins;
         }
 

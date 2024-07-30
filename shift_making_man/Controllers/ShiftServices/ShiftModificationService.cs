@@ -1,4 +1,5 @@
-﻿using System;
+﻿//
+using System;
 using System.Collections.Generic;
 using shift_making_man.Models;
 using shift_making_man.Data;
@@ -84,6 +85,7 @@ namespace shift_making_man.Controllers.ShiftServices
                 Console.WriteLine($"Skipping request ID: {request.RequestID} because it is not a new shift request");
                 return;
             }
+
 
             Console.WriteLine($"Creating new shift for request ID: {request.RequestID}");
 

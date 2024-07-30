@@ -1,4 +1,5 @@
-﻿using System;
+﻿//
+using System;
 using System.Windows.Forms;
 using Microsoft.Extensions.DependencyInjection;
 using shift_making_man.Controllers;
@@ -88,6 +89,5 @@ namespace shift_making_man
 
             return services.BuildServiceProvider();
         }
-
     }
 }

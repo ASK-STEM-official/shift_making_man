@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿//
+using System.Collections.Generic;
 using MySql.Data.MySqlClient;
 using shift_making_man.Models;
 

@@ -1,4 +1,5 @@
-﻿using shift_making_man.Controllers.ShiftServices;
+﻿//
+using shift_making_man.Controllers.ShiftServices;
 
 namespace shift_making_man.Data
 {
@@ -7,6 +8,7 @@ namespace shift_making_man.Data
         public IAdminDataAccess AdminDataAccess { get; }
         public IShiftDataAccess ShiftDataAccess { get; }
         public IStaffDataAccess StaffDataAccess { get; }
+        public IAttendanceDataAccess AttendanceDataAccess { get; }
         public IStoreDataAccess StoreDataAccess { get; }
         public IShiftRequestDataAccess ShiftRequestDataAccess { get; }
         public ShiftCreationService ShiftCreationService { get; }
@@ -18,12 +20,27 @@ namespace shift_making_man.Data
             IAdminDataAccess adminDataAccess,
             IShiftDataAccess shiftDataAccess,
             IStaffDataAccess staffDataAccess,
+            IAttendanceDataAccess attendanceDataAccess,
             IStoreDataAccess storeDataAccess,
             IShiftRequestDataAccess shiftRequestDataAccess,
             ShiftCreationService shiftCreationService,
             ShiftValidationService shiftValidationService,
             ShiftOptimizationService shiftOptimizationService,
             ShiftModificationService shiftModificationService)
+        {
+            AdminDataAccess = adminDataAccess;
+            ShiftDataAccess = shiftDataAccess;
+            StaffDataAccess = staffDataAccess;
+            AttendanceDataAccess = attendanceDataAccess;
+            StoreDataAccess = storeDataAccess;
+            ShiftRequestDataAccess = shiftRequestDataAccess;
+            ShiftCreationService = shiftCreationService;
+            ShiftValidationService = shiftValidationService;
+            ShiftOptimizationService = shiftOptimizationService;
+            ShiftModificationService = shiftModificationService;
+        }
+
+        public DataAccessFacade(IAdminDataAccess adminDataAccess, IShiftDataAccess shiftDataAccess, IStaffDataAccess staffDataAccess, IStoreDataAccess storeDataAccess, IShiftRequestDataAccess shiftRequestDataAccess, ShiftCreationService shiftCreationService, ShiftValidationService shiftValidationService, ShiftOptimizationService shiftOptimizationService, ShiftModificationService shiftModificationService)
         {
             AdminDataAccess = adminDataAccess;
             ShiftDataAccess = shiftDataAccess;
